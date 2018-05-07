@@ -4,34 +4,44 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 int NanoVM_init_lock(lock_t* lock) {
-  // TODO
-  debug_log0("NanoVM_init_lock");
+  lock->tid = 0;
   return 0;
 }
 
-int NanoVM_try_lock(lock_t* lock) {
-  // TODO
-  debug_log0("NanoVM_try_lock");
+int NanoVM_try_lock(lock_t* lock, int tid) {
+  if (lock->tid == tid) {
+    return 0;
+  }
+  if (!lock->tid) {
+    lock->tid = tid;
+    return lock->tid == tid;
+  }
+  // lock->tid != tid
+  return -1;
+}
+
+void NanoVM_lock(lock_t* lock, int tid) {
+  while (NanoVM_try_lock(lock, tid));
+}
+
+int NanoVM_unlock(lock_t* lock, int tid) {
+  if (lock->tid != tid) {
+    return -1;
+  }
+  lock->tid = 0;
   return 0;
 }
 
-void NanoVM_lock(lock_t* lock) {
-  // TODO
-  debug_log0("NanoVM_lock");
-}
-
-int NanoVM_unlock(lock_t* lock) {
-  // TODO
-  debug_log0("NanoVM_unlock");
-  return 0;
-}
-
+int rand_init_flag = 0;
 int NanoVM_rand_int(int max) {
-  // TODO
-  debug_log0("NanoVM_rand_int");
-  return 0;
+  if (!rand_init_flag) {
+    srand((unsigned)time(NULL));
+    rand_init_flag = 1;
+  }
+  return (rand() % (max - 2)) + 1;
 }
 
 void write_log(int e, const char *fmt, ...) {
@@ -41,8 +51,9 @@ void write_log(int e, const char *fmt, ...) {
 
   // +1 for the terminating 0
   // +1 for the \n
-  // TODO malloc
-  newfmt = (char *)malloc(strlen(fmt)+1+strlen(name)+1);
+  newfmt = (char *)zmalloc(strlen(fmt)+1+strlen(name)+1);
+  // it's an util method, and the mem won't go out into other methods
+  // so we simply use zmalloc directly
   if (newfmt == NULL) {
     return;
   }
@@ -56,5 +67,5 @@ void write_log(int e, const char *fmt, ...) {
   vfprintf(e?stderr:stdout, newfmt, l);
 
   va_end(l);
-  free(newfmt);
+  zfree(newfmt);
 }

@@ -1,14 +1,17 @@
 #ifndef NANOVM_UTIL_H
 #define NANOVM_UTIL_H 1
 
+// base headers
+#include "zmalloc.h"
+
 typedef struct {
   int tid; // it's the nanovm thread id, not os tid
 } lock_t;
 
  int NanoVM_init_lock(lock_t* lock);
- int NanoVM_try_lock (lock_t* lock);
-void NanoVM_lock     (lock_t* lock);
- int NanoVM_unlock   (lock_t* lock);
+ int NanoVM_try_lock (lock_t* lock, int tid);
+void NanoVM_lock     (lock_t* lock, int tid);
+ int NanoVM_unlock   (lock_t* lock, int tid);
 
 int NanoVM_rand_int(int max);
 

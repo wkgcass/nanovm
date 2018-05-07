@@ -1,3 +1,7 @@
+#include <stdio.h>
+
+#define TEST(condition, fail_msg) if (!(condition)) { printf("[%s] %s\n", __func__, fail_msg); return -1; }
+
 #include "test.code.c"
 #include "test.memory.c"
 #include "test.nanovm.c"
@@ -17,8 +21,10 @@ int main(int argc, char** argv) {
     & TEST_util()
   ;
   if (err) {
+    printf("SOME TESTS FAILED :(\n");
     return 1;
   } else {
+    printf("ALL TESTS PASSED :)\n");
     return 0;
   }
 }

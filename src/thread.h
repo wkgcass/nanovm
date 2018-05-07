@@ -17,13 +17,13 @@
 // STOP = (10 | 01), for that it's still running
 
 typedef struct _thread_mgr_ thread_mgr_t;
-typedef struct _thread_ thread_t;
+typedef struct _thread_ nthread_t;
 
 typedef struct _thread_mgr_ {
-   nanovm_t* vm;
-      lock_t lock;
-         int thread_cap;
-  thread_t** threads;
+    nanovm_t* vm;
+       lock_t lock;
+          int thread_cap;
+  nthread_t** threads;
 } thread_mgr_t;
 
 typedef struct _thread_ {
@@ -34,14 +34,14 @@ typedef struct _thread_ {
       pthread_t pthread;
             int tid; // generated random id, not the os tid
        stack_t* stack;
-} thread_t;
+} nthread_t;
 
 thread_mgr_t* NanoVM_create_thread_mgr (nanovm_t* vm);
          void NanoVM_release_thread_mgr(thread_mgr_t* thread_mgr);
 
-thread_t* NanoVM_create_thread (nanovm_t* vm);
-      int NanoVM_start_thread  (thread_t* thread);
-      int NanoVM_stop_thread   (thread_t* thread); // only mark `stop`
-     void NanoVM_release_thread(thread_t* thread);
+nthread_t* NanoVM_create_thread (nanovm_t* vm);
+       int NanoVM_start_thread  (nthread_t* thread);
+       int NanoVM_stop_thread   (nthread_t* thread); // only mark `stop`
+      void NanoVM_release_thread(nthread_t* thread);
 
 #endif
