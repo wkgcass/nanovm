@@ -6,7 +6,7 @@ int TEST_NanoVM_create_mem_mgr() {
 }
 
 int TEST_NanoVM_release_mem_mgr() {
-  NanoVM_release_mem_mgr(0);
+  NanoVM_release_mem_mgr(0, 0);
   return 0;
 }
 

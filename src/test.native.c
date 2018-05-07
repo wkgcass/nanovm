@@ -16,7 +16,7 @@ int TEST_NanoVM_create_native_mgr() {
 }
 
 int TEST_NanoVM_release_native_mgr() {
-  NanoVM_release_native_mgr(0);
+  NanoVM_release_native_mgr(0, 0);
   return 0;
 }
 

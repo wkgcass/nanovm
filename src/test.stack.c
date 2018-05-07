@@ -18,7 +18,7 @@ int TEST_NanoVM_create_stack_mgr() {
 }
 
 int TEST_NanoVM_release_stack_mgr() {
-  NanoVM_release_stack_mgr(0);
+  NanoVM_release_stack_mgr(0, 0);
   return 0;
 }
 
@@ -28,64 +28,64 @@ int TEST_NanoVM_create_stack() {
 }
 
 int TEST_NanoVM_release_stack() {
-  NanoVM_release_stack(0);
+  NanoVM_release_stack(0, 0);
   return 0;
 }
 
 int TEST_NanoVM_create_frame() {
-  NanoVM_create_frame(0, 0, 0, 0);
+  NanoVM_create_frame(0, 0, 0, 0, 0);
   return 0;
 }
 
 int TEST_NanoVM_frame_pop() {
-  NanoVM_frame_pop(0);
+  NanoVM_frame_pop(0, 0);
   return 0;
 }
 
 int TEST_NanoVM_frame_start() {
-  NanoVM_frame_start(0, 0);
+  NanoVM_frame_start(0, 0, 0);
   return 0;
 }
 
 int TEST_NanoVM_op_pop() {
-  NanoVM_op_pop(0);
+  NanoVM_op_pop(0, 0);
   return 0;
 }
 
 int TEST_NanoVM_op_push() {
-  NanoVM_op_push(0, 0);
+  NanoVM_op_push(0, 0, 0);
   return 0;
 }
 
 int TEST_NanoVM_get_local() {
-  NanoVM_get_local(0, 0);
+  NanoVM_get_local(0, 0, 0);
   return 0;
 }
 
 int TEST_NanoVM_set_local() {
-  NanoVM_set_local(0, 0, 0);
+  NanoVM_set_local(0, 0, 0, 0);
   return 0;
 }
 
 int TEST_NanoVM_rm_local() {
-  NanoVM_rm_local(0, 0);
+  NanoVM_rm_local(0, 0, 0);
   return 0;
 }
 
 // internal
 
 int TEST_STACK_get_insn_handle() {
-  STACK_get_insn_handle(0);
+  STACK_get_insn_handle(0, 0);
   return 0;
 }
 
 int TEST_STACK_release_stack() {
-  STACK_release_stack(0);
+  STACK_release_stack(0, 0);
   return 0;
 }
 
 int TEST_STACK_release_frame() {
-  STACK_release_frame(0);
+  STACK_release_frame(0, 0);
   return 0;
 }
 

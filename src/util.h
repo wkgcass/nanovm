@@ -4,6 +4,13 @@
 // base headers
 #include "zmalloc.h"
 
+typedef struct _nanovm_ nanovm_t;
+typedef struct _thread_ nthread_t;
+typedef struct {
+   nanovm_t* vm;
+  nthread_t* thread;
+} ctx_t;
+
 typedef struct {
   int tid; // it's the nanovm thread id, not os tid
 } lock_t;

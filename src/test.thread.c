@@ -6,7 +6,7 @@ int TEST_NanoVM_create_thread_mgr() {
 }
 
 int TEST_NanoVM_release_thread_mgr() {
-  NanoVM_release_thread_mgr(0);
+  NanoVM_release_thread_mgr(0, 0);
   return 0;
 }
 
@@ -16,17 +16,17 @@ int TEST_NanoVM_create_thread() {
 }
 
 int TEST_NanoVM_start_thread() {
-  NanoVM_start_thread(0);
+  NanoVM_start_thread(0, 0);
   return 0;
 }
 
 int TEST_NanoVM_stop_thread() {
-  NanoVM_stop_thread(0);
+  NanoVM_stop_thread(0, 0);
   return 0;
 }
 
 int TEST_NanoVM_release_thread() {
-  NanoVM_release_thread(0);
+  NanoVM_release_thread(0, 0);
   return 0;
 }
 

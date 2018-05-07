@@ -20,14 +20,12 @@ typedef struct _thread_mgr_ thread_mgr_t;
 typedef struct _thread_ nthread_t;
 
 typedef struct _thread_mgr_ {
-    nanovm_t* vm;
        lock_t lock;
           int thread_cap;
   nthread_t** threads;
 } thread_mgr_t;
 
 typedef struct _thread_ {
-  thread_mgr_t* thread_mgr;
             int idx; // index in thread_mgr
          lock_t lock;
            char state;
@@ -36,12 +34,12 @@ typedef struct _thread_ {
        stack_t* stack;
 } nthread_t;
 
-thread_mgr_t* NanoVM_create_thread_mgr (nanovm_t* vm);
-         void NanoVM_release_thread_mgr(thread_mgr_t* thread_mgr);
+thread_mgr_t* NanoVM_create_thread_mgr (ctx_t* ctx);
+         void NanoVM_release_thread_mgr(ctx_t* ctx, thread_mgr_t* thread_mgr);
 
-nthread_t* NanoVM_create_thread (nanovm_t* vm);
-       int NanoVM_start_thread  (nthread_t* thread);
-       int NanoVM_stop_thread   (nthread_t* thread); // only mark `stop`
-      void NanoVM_release_thread(nthread_t* thread);
+nthread_t* NanoVM_create_thread (ctx_t* ctx);
+       int NanoVM_start_thread  (ctx_t* ctx, nthread_t* thread);
+       int NanoVM_stop_thread   (ctx_t* ctx, nthread_t* thread); // only mark `stop`
+      void NanoVM_release_thread(ctx_t* ctx, nthread_t* thread);
 
 #endif

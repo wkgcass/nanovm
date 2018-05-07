@@ -18,7 +18,7 @@ int TEST_NanoVM_create_code_mgr() {
 }
 
 int TEST_NanoVM_release_code_mgr() {
-  NanoVM_release_code_mgr(0);
+  NanoVM_release_code_mgr(0, 0);
   return 0;
 }
 
@@ -55,27 +55,27 @@ int TEST_NanoVM_get_arr_type() {
 // internal
 
 int TEST_CODE_release_type() {
-  CODE_release_type(0);
+  CODE_release_type(0, 0);
   return 0;
 }
 
 int TEST_CODE_release_field() {
-  CODE_release_field(0);
+  CODE_release_field(0, 0);
   return 0;
 }
 
 int TEST_CODE_release_meth() {
-  CODE_release_meth(0);
+  CODE_release_meth(0, 0);
   return 0;
 }
 
 int TEST_CODE_release_insn() {
-  CODE_release_insn(0);
+  CODE_release_insn(0, 0);
   return 0;
 }
 
 int TEST_CODE_release_ex() {
-  CODE_release_ex(0);
+  CODE_release_ex(0, 0);
   return 0;
 }
 

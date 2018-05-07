@@ -12,7 +12,6 @@ typedef struct _result_    result_t;
 typedef struct _frame_     frame_t;
 
 typedef struct _stack_mgr_ {
-  nanovm_t* vm;
         int frame_cap;
 } stack_mgr_t;
 
@@ -42,21 +41,21 @@ typedef struct _frame_ {
 
          int NanoVM_GLOBAL_init_stack();
         void NanoVM_GLOBAL_free_stack();
-stack_mgr_t* NanoVM_create_stack_mgr (nanovm_t* vm, int frame_cap);
-        void NanoVM_release_stack_mgr(stack_mgr_t* stack_mgr);
+stack_mgr_t* NanoVM_create_stack_mgr (ctx_t* ctx, int frame_cap);
+        void NanoVM_release_stack_mgr(ctx_t* ctx, stack_mgr_t* stack_mgr);
 
-stack_t* NanoVM_create_stack (nanovm_t* vm);
-    void NanoVM_release_stack(stack_t* stack);
+stack_t* NanoVM_create_stack (ctx_t* ctx);
+    void NanoVM_release_stack(ctx_t* ctx, stack_t* stack);
 
-frame_t* NanoVM_create_frame(stack_t* stack, meth_t* meth, int local_var_len, object_t** local_vars);
-frame_t* NanoVM_frame_pop   (stack_t* stack);
-     int NanoVM_frame_start (frame_t* frame, result_t* result);
+frame_t* NanoVM_create_frame(ctx_t* ctx, stack_t* stack, meth_t* meth, int local_var_len, object_t** local_vars);
+frame_t* NanoVM_frame_pop   (ctx_t* ctx, stack_t* stack);
+     int NanoVM_frame_start (ctx_t* ctx, frame_t* frame, result_t* result);
 
-object_t* NanoVM_op_pop (frame_t* frame);
-      int NanoVM_op_push(frame_t* frame, object_t* var);
+object_t* NanoVM_op_pop (ctx_t* ctx, frame_t* frame);
+      int NanoVM_op_push(ctx_t* ctx, frame_t* frame, object_t* var);
 
-object_t* NanoVM_get_local(frame_t* frame, int index);
-      int NanoVM_set_local(frame_t* frame, int index, object_t* var);
-      int NanoVM_rm_local (frame_t* frame, int index);
+object_t* NanoVM_get_local(ctx_t* ctx, frame_t* frame, int index);
+      int NanoVM_set_local(ctx_t* ctx, frame_t* frame, int index, object_t* var);
+      int NanoVM_rm_local (ctx_t* ctx, frame_t* frame, int index);
 
 #endif

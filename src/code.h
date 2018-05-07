@@ -42,15 +42,13 @@ typedef struct _insn_      insn_t;
 typedef struct _ex_        ex_t;
 
 typedef struct _code_mgr_ {
-  nanovm_t* vm;
         int type_cap;
         int type_len;
    type_t** types;
 } code_mgr_t;
 
 typedef struct _type_ {
-  code_mgr_t* mgr;
-         char cat; // category
+  char cat; // category
 } type_t;
 
 typedef struct _prm_type_ {
@@ -123,16 +121,16 @@ typedef struct _ex_ {
 
         int NanoVM_GLOBAL_init_code();
        void NanoVM_GLOBAL_free_code();
-code_mgr_t* NanoVM_create_code_mgr (nanovm_t* vm, int type_cap);
-       void NanoVM_release_code_mgr(code_mgr_t* code_mgr);
+code_mgr_t* NanoVM_create_code_mgr (ctx_t* ctx, int type_cap);
+       void NanoVM_release_code_mgr(ctx_t* ctx, code_mgr_t* code_mgr);
 
-     int NanoVM_parse_code0(nanovm_t* vm, char** bytecode);
- meth_t* NanoVM_get_meth   (nanovm_t* vm, ref_type_t* ref_type, char* name, type_t* ret_type, int param_len, type_t** param_types);
-field_t* NanoVM_get_field  (nanovm_t* vm, ref_type_t* ref_type, char* name);
+     int NanoVM_parse_code0(ctx_t* ctx, char** bytecode);
+ meth_t* NanoVM_get_meth   (ctx_t* ctx, ref_type_t* ref_type, char* name, type_t* ret_type, int param_len, type_t** param_types);
+field_t* NanoVM_get_field  (ctx_t* ctx, ref_type_t* ref_type, char* name);
 
-prm_type_t* NanoVM_get_prm_type(nanovm_t* vm, char prm); // e.g. Z -> boolean
-ref_type_t* NanoVM_get_ref_type(nanovm_t* vm, char* name);
-arr_type_t* NanoVM_get_arr_type(nanovm_t* vm, type_t* comp_type);
+prm_type_t* NanoVM_get_prm_type(ctx_t* ctx, char prm); // e.g. Z -> boolean
+ref_type_t* NanoVM_get_ref_type(ctx_t* ctx, char* name);
+arr_type_t* NanoVM_get_arr_type(ctx_t* ctx, type_t* comp_type);
 
 // -----BEGIN instructions category-----
 // same as java asm lib
