@@ -12,8 +12,8 @@
 // run  means the thread is running
 // stop means the thread will be terminated after the current insn finishes
 
-#define THREAD_STATE_RUN  1
-#define THREAD_STATE_STOP 3
+#define NVM_THREAD_STATE_RUN  1
+#define NVM_THREAD_STATE_STOP 3
 // STOP = (10 | 01), for that it's still running
 
 typedef struct _nvm_thread_mgr_ nvm_thread_mgr_t;
