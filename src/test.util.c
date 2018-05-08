@@ -2,7 +2,7 @@
 #include <pthread.h>
 
 int TEST_NanoVM_init_lock() {
-  lock_t lock;
+  nvm_lock_t lock;
   lock.tid = 1;
   NanoVM_init_lock(&lock);
   TEST(lock.tid == 0, "NanoVM_init_lock should set tid to 0");
@@ -10,7 +10,7 @@ int TEST_NanoVM_init_lock() {
 }
 
 int TEST_NanoVM_try_lock() {
-  lock_t lock;
+  nvm_lock_t lock;
   NanoVM_init_lock(&lock);
   lock.tid = 1;
   TEST(NanoVM_try_lock(&lock, 2) == -1, "lock to lock lock(1) on thread 2 should fail");
@@ -19,13 +19,13 @@ int TEST_NanoVM_try_lock() {
 }
 
 void* _in_thread(void* data) {
-  lock_t* lock = data;
+  nvm_lock_t* lock = data;
   NanoVM_lock(lock, 2);
   return &lock->tid;
 }
 
 int TEST_NanoVM_lock() {
-  lock_t lock;
+  nvm_lock_t lock;
   NanoVM_init_lock(&lock);
   NanoVM_lock(&lock, 1);
   pthread_t thread;
@@ -40,7 +40,7 @@ int TEST_NanoVM_lock() {
 }
 
 int TEST_NanoVM_unlock() {
-  lock_t lock;
+  nvm_lock_t lock;
   NanoVM_init_lock(&lock);
   NanoVM_lock(&lock, 1);
   TEST(lock.tid == 1, "NanoVM_lock should set tid to given tid");

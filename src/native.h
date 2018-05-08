@@ -6,28 +6,28 @@
 #include "code.h"
 #include "stack.h"
 
-typedef struct _native_mgr_  native_mgr_t;
-typedef struct _native_meth_ native_meth_t;
+typedef struct _nvm_native_mgr_  nvm_native_mgr_t;
+typedef struct _nvm_native_meth_ nvm_native_meth_t;
 
 // native_handle_t :: nanovm_t -> frame_t -> native_meth_t -> int
-typedef int (*native_handle_t)(ctx_t*, frame_t*, native_meth_t*);
+typedef int (*nvm_native_handle_t)(nvm_ctx_t*, nvm_frame_t*, nvm_native_meth_t*);
 
-typedef struct _native_mgr_ {
-              int meth_len;
-  native_meth_t** meths;
-} native_mgr_t;
+typedef struct _nvm_native_mgr_ {
+                  int meth_len;
+  nvm_native_meth_t** meths;
+} nvm_native_mgr_t;
 
-typedef struct _native_meth_ {
-          meth_t* meth;
-  native_handle_t handle;
-} native_meth_t;
+typedef struct _nvm_native_meth_ {
+          nvm_meth_t* meth;
+  nvm_native_handle_t handle;
+} nvm_native_meth_t;
 
  int NanoVM_GLOBAL_init_native();
 void NanoVM_GLOBAL_free_native();
 
- int NanoVM_create_native_mgr (ctx_t* ctx);
-void NanoVM_release_native_mgr(ctx_t* ctx, native_mgr_t* native_mgr);
+ int NanoVM_create_native_mgr (nvm_ctx_t* ctx);
+void NanoVM_release_native_mgr(nvm_ctx_t* ctx, nvm_native_mgr_t* native_mgr);
 
-native_meth_t* NanoVM_get_native_meth(ctx_t* ctx, meth_t* meth);
+nvm_native_meth_t* NanoVM_get_native_meth(nvm_ctx_t* ctx, nvm_meth_t* meth);
 
 #endif

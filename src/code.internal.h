@@ -6,12 +6,12 @@
 typedef struct {
   int opcode;    // OP_
   int insn_type; // INSN_
-} opcode_meta_t;
+} nvm_opcode_meta_t;
 
-void CODE_release_type (ctx_t* ctx, type_t* type);
-void CODE_release_field(ctx_t* ctx, field_t* field);
-void CODE_release_meth (ctx_t* ctx, meth_t* meth);
-void CODE_release_insn (ctx_t* ctx, insn_t* insn);
-void CODE_release_ex   (ctx_t* ctx, ex_t* ex);
+void NVM_CODE_release_type (nvm_ctx_t* ctx, nvm_type_t* type);
+void NVM_CODE_release_field(nvm_ctx_t* ctx, nvm_field_t* field);
+void NVM_CODE_release_meth (nvm_ctx_t* ctx, nvm_meth_t* meth);
+void NVM_CODE_release_insn (nvm_ctx_t* ctx, nvm_insn_t* insn);
+void NVM_CODE_release_ex   (nvm_ctx_t* ctx, nvm_ex_t* ex);
 
 #endif

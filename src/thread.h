@@ -16,30 +16,30 @@
 #define THREAD_STATE_STOP 3
 // STOP = (10 | 01), for that it's still running
 
-typedef struct _thread_mgr_ thread_mgr_t;
-typedef struct _thread_ nthread_t;
+typedef struct _nvm_thread_mgr_ nvm_thread_mgr_t;
+typedef struct _nvm_thread_ nvm_thread_t;
 
-typedef struct _thread_mgr_ {
-       lock_t lock;
-          int thread_cap;
-  nthread_t** threads;
-} thread_mgr_t;
+typedef struct _nvm_thread_mgr_ {
+      nvm_lock_t lock;
+             int thread_cap;
+  nvm_thread_t** threads;
+} nvm_thread_mgr_t;
 
-typedef struct _thread_ {
+typedef struct _nvm_thread_ {
             int idx; // index in thread_mgr
-         lock_t lock;
+     nvm_lock_t lock;
            char state;
       pthread_t pthread;
             int tid; // generated random id, not the os tid
-       stack_t* stack;
-} nthread_t;
+   nvm_stack_t* stack;
+} nvm_thread_t;
 
-thread_mgr_t* NanoVM_create_thread_mgr (ctx_t* ctx);
-         void NanoVM_release_thread_mgr(ctx_t* ctx, thread_mgr_t* thread_mgr);
+nvm_thread_mgr_t* NanoVM_create_thread_mgr (nvm_ctx_t* ctx);
+             void NanoVM_release_thread_mgr(nvm_ctx_t* ctx, nvm_thread_mgr_t* thread_mgr);
 
-nthread_t* NanoVM_create_thread (ctx_t* ctx);
-       int NanoVM_start_thread  (ctx_t* ctx, nthread_t* thread);
-       int NanoVM_stop_thread   (ctx_t* ctx, nthread_t* thread); // only mark `stop`
-      void NanoVM_release_thread(ctx_t* ctx, nthread_t* thread);
+nvm_thread_t* NanoVM_create_thread (nvm_ctx_t* ctx);
+          int NanoVM_start_thread  (nvm_ctx_t* ctx, nvm_thread_t* thread);
+          int NanoVM_stop_thread   (nvm_ctx_t* ctx, nvm_thread_t* thread); // only mark `stop`
+         void NanoVM_release_thread(nvm_ctx_t* ctx, nvm_thread_t* thread);
 
 #endif

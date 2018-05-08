@@ -6,12 +6,12 @@
 #include <string.h>
 #include <time.h>
 
-int NanoVM_init_lock(lock_t* lock) {
+int NanoVM_init_lock(nvm_lock_t* lock) {
   lock->tid = 0;
   return 0;
 }
 
-int NanoVM_try_lock(lock_t* lock, int tid) {
+int NanoVM_try_lock(nvm_lock_t* lock, int tid) {
   if (lock->tid == tid) {
     return 0;
   }
@@ -23,11 +23,11 @@ int NanoVM_try_lock(lock_t* lock, int tid) {
   return -1;
 }
 
-void NanoVM_lock(lock_t* lock, int tid) {
+void NanoVM_lock(nvm_lock_t* lock, int tid) {
   while (NanoVM_try_lock(lock, tid));
 }
 
-int NanoVM_unlock(lock_t* lock, int tid) {
+int NanoVM_unlock(nvm_lock_t* lock, int tid) {
   if (lock->tid != tid) {
     return -1;
   }

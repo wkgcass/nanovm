@@ -28,109 +28,109 @@
 
 // forward declaration
 // memory.h
-typedef struct _header_ hdr_t;
-typedef hdr_t object_t;
+typedef struct _nvm_header_ nvm_hdr_t;
+typedef nvm_hdr_t nvm_object_t;
 
-typedef struct _code_mgr_  code_mgr_t;
-typedef struct _type_      type_t;
-typedef struct _prm_type_  prm_type_t;
-typedef struct _ref_type_  ref_type_t;
-typedef struct _arr_type_  arr_type_t;
-typedef struct _field_     field_t;
-typedef struct _meth_      meth_t;
-typedef struct _insn_      insn_t;
-typedef struct _ex_        ex_t;
+typedef struct _nvm_code_mgr_  nvm_code_mgr_t;
+typedef struct _nvm_type_      nvm_type_t;
+typedef struct _nvm_prm_type_  nvm_prm_type_t;
+typedef struct _nvm_ref_type_  nvm_ref_type_t;
+typedef struct _nvm_arr_type_  nvm_arr_type_t;
+typedef struct _nvm_field_     nvm_field_t;
+typedef struct _nvm_meth_      nvm_meth_t;
+typedef struct _nvm_insn_      nvm_insn_t;
+typedef struct _nvm_ex_        nvm_ex_t;
 
-typedef struct _code_mgr_ {
-        int type_cap;
-        int type_len;
-   type_t** types;
-} code_mgr_t;
+typedef struct _nvm_code_mgr_ {
+           int type_cap;
+           int type_len;
+  nvm_type_t** types;
+} nvm_code_mgr_t;
 
-typedef struct _type_ {
+typedef struct _nvm_type_ {
   char cat; // category
-} type_t;
+} nvm_type_t;
 
-typedef struct _prm_type_ {
-  type_t super;
-    char prm_type;
-  size_t size;
-} prm_type_t;
+typedef struct _nvm_prm_type_ {
+  nvm_type_t super;
+        char prm_type;
+      size_t size;
+} nvm_prm_type_t;
 
-typedef struct _ref_type_ {
-     type_t super;
+typedef struct _nvm_ref_type_ {
+     nvm_type_t super;
 
-    type_t* parent_type;
-      char* name;
-        int field_len;
-  field_t** fields;
-        int meth_len;
-   meth_t** meths;
+    nvm_type_t* parent_type;
+          char* name;
+            int field_len;
+  nvm_field_t** fields;
+            int meth_len;
+   nvm_meth_t** meths;
 
-     size_t size;
-} ref_type_t;
+         size_t size;
+} nvm_ref_type_t;
 
-typedef struct _arr_type_ {
-   type_t super;
+typedef struct _nvm_arr_type_ {
+   nvm_type_t super;
 
-  type_t* comp_type;
-} arr_type_t;
+  nvm_type_t* comp_type;
+} nvm_arr_type_t;
 
-typedef struct _field_ {
-    type_t* dec_type;
+typedef struct _nvm_field_ {
+    nvm_type_t* dec_type;
 
-        int acc;
-      char* name;
-    type_t* type;
-  object_t* static_v;
+            int acc;
+          char* name;
+    nvm_type_t* type;
+  nvm_object_t* static_v;
 } field_t;
 
-typedef struct _meth_ {
-   type_t* dec_type;
+typedef struct _nvm_meth_ {
+   nvm_type_t* dec_type;
 
-       int acc;
-     char* name;
-   type_t* ret_type;
-       int param_len;
-  type_t** param_types;
-       int max_stack;  // op stack size
-       int max_locals; // local variable table size
-       int insn_len;
-  insn_t** insns;
-       int ex_len;
-    ex_t** exs;
-} meth_t;
+           int acc;
+         char* name;
+   nvm_type_t* ret_type;
+           int param_len;
+  nvm_type_t** param_types;
+           int max_stack;  // op stack size
+           int max_locals; // local variable table size
+           int insn_len;
+  nvm_insn_t** insns;
+           int ex_len;
+    nvm_ex_t** exs;
+} nvm_meth_t;
 
-typedef struct _insn_ {
-      int idx; // index of the insn in meth_t
-      int off; // offset of code attribute
+typedef struct _nvm_insn_ {
+          int idx; // index of the insn in meth_t
+          int off; // offset of code attribute
 
-  meth_t* meth;
-      int line; // source code line
-      int opcode;
-      int type; // defined in code.internal.h
-} insn_t;
+  nvm_meth_t* meth;
+          int line; // source code line
+          int opcode;
+          int type; // defined in code.internal.h
+} nvm_insn_t;
 
-typedef struct _ex_ {
-  meth_t* meth;
-  insn_t* start; // inclusive
-  insn_t* end;   // exclusive, maybe null (which means the end)
-  insn_t* handler;
-  type_t* catch_type;
-} ex_t;
+typedef struct _nvm_ex_ {
+  nvm_meth_t* meth;
+  nvm_insn_t* start; // inclusive
+  nvm_insn_t* end;   // exclusive, maybe null (which means the end)
+  nvm_insn_t* handler;
+  nvm_type_t* catch_type;
+} nvm_ex_t;
 
-        int NanoVM_GLOBAL_init_code();
-       void NanoVM_GLOBAL_free_code();
-code_mgr_t* NanoVM_create_code_mgr (ctx_t* ctx, int type_cap);
-       void NanoVM_release_code_mgr(ctx_t* ctx, code_mgr_t* code_mgr);
+            int NanoVM_GLOBAL_init_code();
+           void NanoVM_GLOBAL_free_code();
+nvm_code_mgr_t* NanoVM_create_code_mgr (nvm_ctx_t* ctx, int type_cap);
+           void NanoVM_release_code_mgr(nvm_ctx_t* ctx, nvm_code_mgr_t* code_mgr);
 
-     int NanoVM_parse_code0(ctx_t* ctx, char** bytecode);
- meth_t* NanoVM_get_meth   (ctx_t* ctx, ref_type_t* ref_type, char* name, type_t* ret_type, int param_len, type_t** param_types);
-field_t* NanoVM_get_field  (ctx_t* ctx, ref_type_t* ref_type, char* name);
+         int NanoVM_parse_code0(nvm_ctx_t* ctx, char** bytecode);
+ nvm_meth_t* NanoVM_get_meth   (nvm_ctx_t* ctx, nvm_ref_type_t* ref_type, char* name, nvm_type_t* ret_type, int param_len, nvm_type_t** param_types);
+nvm_field_t* NanoVM_get_field  (nvm_ctx_t* ctx, nvm_ref_type_t* ref_type, char* name);
 
-prm_type_t* NanoVM_get_prm_type(ctx_t* ctx, char prm); // e.g. Z -> boolean
-ref_type_t* NanoVM_get_ref_type(ctx_t* ctx, char* name);
-arr_type_t* NanoVM_get_arr_type(ctx_t* ctx, type_t* comp_type);
+nvm_prm_type_t* NanoVM_get_prm_type(nvm_ctx_t* ctx, char prm); // e.g. Z -> boolean
+nvm_ref_type_t* NanoVM_get_ref_type(nvm_ctx_t* ctx, char* name);
+nvm_arr_type_t* NanoVM_get_arr_type(nvm_ctx_t* ctx, nvm_type_t* comp_type);
 
 // -----BEGIN instructions category-----
 // same as java asm lib
@@ -149,72 +149,72 @@ arr_type_t* NanoVM_get_arr_type(ctx_t* ctx, type_t* comp_type);
 #define INSN_LKUP  10
 #define INSN_MAARR 11
 
-typedef insn_t insn_plain_t;
+typedef nvm_insn_t nvm_insn_plain_t;
 
 typedef struct {
-  insn_t super;
-  int operand;
-} insn_int_t;
+  nvm_insn_t super;
+         int operand;
+} nvm_insn_int_t;
 
 typedef struct {
-  insn_t super;
-  int var;
-} insn_var_t;
+  nvm_insn_t super;
+         int var;
+} nvm_insn_var_t;
 
 typedef struct {
-   insn_t super;
-  type_t* type;
-} insn_type_t;
+   nvm_insn_t super;
+  nvm_type_t* type;
+} nvm_insn_type_t;
 
 typedef struct {
-    insn_t super;
-  field_t* field;
-} insn_field_t;
+    nvm_insn_t super;
+  nvm_field_t* field;
+} nvm_insn_field_t;
 
 typedef struct {
-   insn_t super;
-  meth_t* meth;
-} insn_meth_t;
+   nvm_insn_t super;
+  nvm_meth_t* meth;
+} nvm_insn_meth_t;
 
 typedef struct {
-   insn_t super;
-  insn_t* target;
-} insn_jmp_t;
+   nvm_insn_t super;
+  nvm_insn_t* target;
+} nvm_insn_jmp_t;
 
 typedef struct {
-     insn_t super;
-  object_t* obj;
-} insn_ldc_t;
+     nvm_insn_t super;
+  nvm_object_t* obj;
+} nvm_insn_ldc_t;
 
 typedef struct {
-  insn_t super;
-     int var;
-     int incr;
-} insn_iinc_t;
+  nvm_insn_t super;
+         int var;
+         int incr;
+} nvm_insn_iinc_t;
 
 typedef struct {
-    insn_t super;
-       int low;
-       int high;
-  insn_t** targets;
-} insn_tbl_t; // table switch
+    nvm_insn_t super;
+           int low;
+           int high;
+  nvm_insn_t** targets;
+} nvm_insn_tbl_t; // table switch
 
 typedef struct {
-      int key;
-  insn_t* target;
-} lkup_pair_t;
+          int key;
+  nvm_insn_t* target;
+} nvm_lkup_pair_t;
 
 typedef struct {
-        insn_t super;
-           int pair_len;
-  lkup_pair_t* pairs;
-} insn_lkup_t; // lookup switch
+        nvm_insn_t super;
+               int pair_len;
+  nvm_lkup_pair_t* pairs;
+} nvm_insn_lkup_t; // lookup switch
 
 typedef struct {
-       insn_t super;
-  arr_type_t* arr_type;
-          int dim; //dimensions
-} insn_m_a_arr; // multi a new array
+       nvm_insn_t super;
+  nvm_arr_type_t* arr_type;
+              int dim; //dimensions
+} nvm_insn_m_a_arr_t; // multi a new array
 
 // -----END instructions category-----
 

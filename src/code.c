@@ -11,74 +11,74 @@ void NanoVM_GLOBAL_free_code() {
   debug_log0("NanoVM_GLOBAL_free_code");
 }
 
-code_mgr_t* NanoVM_create_code_mgr(ctx_t* ctx, int type_cap) {
+nvm_code_mgr_t* NanoVM_create_code_mgr(nvm_ctx_t* ctx, int type_cap) {
   // TODO
   debug_log0("NanoVM_create_code_mgr");
   return NULL;
 }
 
-void NanoVM_release_code_mgr(ctx_t* ctx, code_mgr_t* code_mgr) {
+void NanoVM_release_code_mgr(nvm_ctx_t* ctx, nvm_code_mgr_t* code_mgr) {
   // TODO
   debug_log0("NanoVM_release_code_mgr");
 }
 
-int NanoVM_parse_code0(ctx_t* ctx, char** bytecode) {
+int NanoVM_parse_code0(nvm_ctx_t* ctx, char** bytecode) {
   // TODO
   debug_log0("NanoVM_parse_code0");
   return 0;
 }
 
-meth_t* NanoVM_get_meth(ctx_t* ctx, ref_type_t* ref_type, char* name, type_t* ret_type, int param_len, type_t** param_types) {
+nvm_meth_t* NanoVM_get_meth(nvm_ctx_t* ctx, nvm_ref_type_t* ref_type, char* name, nvm_type_t* ret_type, int param_len, nvm_type_t** param_types) {
   // TODO
   debug_log0("NanoVM_get_meth");
   return NULL;
 }
 
-field_t* NanoVM_get_field(ctx_t* ctx, ref_type_t* ref_type, char* name) {
+nvm_field_t* NanoVM_get_field(nvm_ctx_t* ctx, nvm_ref_type_t* ref_type, char* name) {
   // TODO
   debug_log0("NanoVM_get_field");
   return NULL;
 }
 
-prm_type_t* NanoVM_get_prm_type(ctx_t* ctx, char prm) {
+nvm_prm_type_t* NanoVM_get_prm_type(nvm_ctx_t* ctx, char prm) {
   // TODO
   debug_log0("NanoVM_get_prm_type");
   return NULL;
 }
 
-ref_type_t* NanoVM_get_ref_type(ctx_t* ctx, char* name) {
+nvm_ref_type_t* NanoVM_get_ref_type(nvm_ctx_t* ctx, char* name) {
   // TODO
   debug_log0("NanoVM_get_ref_type");
   return NULL;
 }
 
-arr_type_t* NanoVM_get_arr_type(ctx_t* ctx, type_t* comp_type) {
+nvm_arr_type_t* NanoVM_get_arr_type(nvm_ctx_t* ctx, nvm_type_t* comp_type) {
   // TODO
   debug_log0("NanoVM_get_arr_type");
   return NULL;
 }
 
-void CODE_release_type(ctx_t* ctx, type_t* type) {
+void NVM_CODE_release_type(nvm_ctx_t* ctx, nvm_type_t* type) {
   // TODO
   debug_log0("CODE_release_type");
 }
 
-void CODE_release_field(ctx_t* ctx, field_t* field) {
+void NVM_CODE_release_field(nvm_ctx_t* ctx, nvm_field_t* field) {
   // TODO
   debug_log0("CODE_release_field");
 }
 
-void CODE_release_meth(ctx_t* ctx, meth_t* meth) {
+void NVM_CODE_release_meth(nvm_ctx_t* ctx, nvm_meth_t* meth) {
   // TODO
   debug_log0("CODE_release_meth");
 }
 
-void CODE_release_insn(ctx_t* ctx, insn_t* insn) {
+void NVM_CODE_release_insn(nvm_ctx_t* ctx, nvm_insn_t* insn) {
   // TODO
   debug_log0("CODE_release_insn");
 }
 
-void CODE_release_ex(ctx_t* ctx, ex_t* ex) {
+void NVM_CODE_release_ex(nvm_ctx_t* ctx, nvm_ex_t* ex) {
   // TODO
   debug_log0("CODE_release_ex");
 }

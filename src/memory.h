@@ -5,46 +5,46 @@
 #include "nanovm.h"
 #include "code.h"
 
-typedef struct _mem_mgr_ {
-  lock_t lock;
+typedef struct _nvm_mem_mgr_ {
+  nvm_lock_t lock;
 
   long heap_cap;
   long heap_used;
 
   long mem_cap;
   long mem_used;
-} mem_mgr_t;
+} nvm_mem_mgr_t;
 
-typedef struct _header_ {
-   lock_t lock;
-  type_t* type;
-      int cnt;
-} hdr_t;
+typedef struct _nvm_header_ {
+   nvm_lock_t lock;
+  nvm_type_t* type;
+          int cnt;
+} nvm_hdr_t;
 
-typedef hdr_t object_t;
+typedef nvm_hdr_t nvm_object_t;
 
-typedef struct _prm_header_ {
-  hdr_t super;
-} prm_hdr_t;
+typedef struct _nvm_prm_header_ {
+  nvm_hdr_t super;
+} nvm_prm_hdr_t;
 
-typedef struct _ref_header_ {
-  hdr_t super;
-} ref_hdr_t;
+typedef struct _nvm_ref_header_ {
+  nvm_hdr_t super;
+} nvm_ref_hdr_t;
 
-typedef struct _arr_header_ {
-  ref_hdr_t super;
-        int len;
-} arr_hdr_t;
+typedef struct _nvm_arr_header_ {
+  nvm_ref_hdr_t super;
+            int len;
+} nvm_arr_hdr_t;
 
-mem_mgr_t* NanoVM_create_mem_mgr (ctx_t* ctx, long heap_cap, long mem_cap);
-      void NanoVM_release_mem_mgr(ctx_t* ctx, mem_mgr_t* mem_mgr);
+nvm_mem_mgr_t* NanoVM_create_mem_mgr (nvm_ctx_t* ctx, long heap_cap, long mem_cap);
+          void NanoVM_release_mem_mgr(nvm_ctx_t* ctx, nvm_mem_mgr_t* mem_mgr);
 
- object_t* NanoVM_alloc_heap(ctx_t* ctx, type_t* type);
-arr_hdr_t* NanoVM_alloc_heap_arr(ctx_t* ctx, arr_type_t* type, int len);
-     void* NanoVM_alloc(ctx_t* ctx, size_t size);
-      void NanoVM_free (ctx_t* ctx, void*  ptr);
+ nvm_object_t* NanoVM_alloc_heap(nvm_ctx_t* ctx, nvm_type_t* type);
+nvm_arr_hdr_t* NanoVM_alloc_heap_arr(nvm_ctx_t* ctx, nvm_arr_type_t* type, int len);
+         void* NanoVM_alloc(nvm_ctx_t* ctx, size_t size);
+          void NanoVM_free (nvm_ctx_t* ctx, void*  ptr);
 
-void NanoVM_ref  (ctx_t* ctx, object_t* ref);
-void NanoVM_unref(ctx_t* ctx, object_t* ref);
+void NanoVM_ref  (nvm_ctx_t* ctx, nvm_object_t* ref);
+void NanoVM_unref(nvm_ctx_t* ctx, nvm_object_t* ref);
 
 #endif

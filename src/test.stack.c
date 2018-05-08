@@ -74,18 +74,18 @@ int TEST_NanoVM_rm_local() {
 
 // internal
 
-int TEST_STACK_get_insn_handle() {
-  STACK_get_insn_handle(0, 0);
+int TEST_NVM_STACK_get_insn_handle() {
+  NVM_STACK_get_insn_handle(0, 0);
   return 0;
 }
 
-int TEST_STACK_release_stack() {
-  STACK_release_stack(0, 0);
+int TEST_NVM_STACK_release_stack() {
+  NVM_STACK_release_stack(0, 0);
   return 0;
 }
 
-int TEST_STACK_release_frame() {
-  STACK_release_frame(0, 0);
+int TEST_NVM_STACK_release_frame() {
+  NVM_STACK_release_frame(0, 0);
   return 0;
 }
 
@@ -105,9 +105,9 @@ int TEST_stack() {
     & TEST_NanoVM_get_local()
     & TEST_NanoVM_set_local()
     & TEST_NanoVM_rm_local()
-    & TEST_STACK_get_insn_handle()
-    & TEST_STACK_release_stack()
-    & TEST_STACK_release_frame()
+    & TEST_NVM_STACK_get_insn_handle()
+    & TEST_NVM_STACK_release_stack()
+    & TEST_NVM_STACK_release_frame()
   ;
   return err;
 }

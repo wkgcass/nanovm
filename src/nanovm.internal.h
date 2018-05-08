@@ -11,11 +11,11 @@
 #include "thread.h"
 
 typedef struct _nanovm_ {
-    code_mgr_t* code_mgr;
-   stack_mgr_t* stack_mgr;
-     mem_mgr_t* mem_mgr;
-  thread_mgr_t* thread_mgr;
-  native_mgr_t* native_mgr;
+    nvm_code_mgr_t* code_mgr;
+   nvm_stack_mgr_t* stack_mgr;
+     nvm_mem_mgr_t* mem_mgr;
+  nvm_thread_mgr_t* thread_mgr;
+  nvm_native_mgr_t* native_mgr;
 } nanovm_t;
 
 #endif

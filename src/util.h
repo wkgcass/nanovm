@@ -5,20 +5,20 @@
 #include "zmalloc.h"
 
 typedef struct _nanovm_ nanovm_t;
-typedef struct _thread_ nthread_t;
+typedef struct _nvm_thread_ nvm_thread_t;
 typedef struct {
-   nanovm_t* vm;
-  nthread_t* thread;
-} ctx_t;
+      nanovm_t* vm;
+  nvm_thread_t* thread;
+} nvm_ctx_t;
 
 typedef struct {
   int tid; // it's the nanovm thread id, not os tid
-} lock_t;
+} nvm_lock_t;
 
- int NanoVM_init_lock(lock_t* lock);
- int NanoVM_try_lock (lock_t* lock, int tid);
-void NanoVM_lock     (lock_t* lock, int tid);
- int NanoVM_unlock   (lock_t* lock, int tid);
+ int NanoVM_init_lock(nvm_lock_t* lock);
+ int NanoVM_try_lock (nvm_lock_t* lock, int tid);
+void NanoVM_lock     (nvm_lock_t* lock, int tid);
+ int NanoVM_unlock   (nvm_lock_t* lock, int tid);
 
 int NanoVM_rand_int(int max);
 

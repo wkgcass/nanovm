@@ -4,11 +4,11 @@
 #include "stack.h"
 
 // insn_handle_t :: ctx_t -> frame_t -> insn_t -> int
-typedef int (*insn_handle_t)(ctx_t* ctx, frame_t*, insn_t*);
+typedef int (*nvm_insn_handle_t)(nvm_ctx_t* ctx, nvm_frame_t*, nvm_insn_t*);
 
-insn_handle_t STACK_get_insn_handle(ctx_t* ctx, insn_t* insn);
+nvm_insn_handle_t NVM_STACK_get_insn_handle(nvm_ctx_t* ctx, nvm_insn_t* insn);
 
-void STACK_release_stack(ctx_t* ctx, stack_t* stack);
-void STACK_release_frame(ctx_t* ctx, frame_t* frame);
+void NVM_STACK_release_stack(nvm_ctx_t* ctx, nvm_stack_t* stack);
+void NVM_STACK_release_frame(nvm_ctx_t* ctx, nvm_frame_t* frame);
 
 #endif

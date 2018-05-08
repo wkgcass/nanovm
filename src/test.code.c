@@ -54,28 +54,28 @@ int TEST_NanoVM_get_arr_type() {
 
 // internal
 
-int TEST_CODE_release_type() {
-  CODE_release_type(0, 0);
+int TEST_NVM_CODE_release_type() {
+  NVM_CODE_release_type(0, 0);
   return 0;
 }
 
-int TEST_CODE_release_field() {
-  CODE_release_field(0, 0);
+int TEST_NVM_CODE_release_field() {
+  NVM_CODE_release_field(0, 0);
   return 0;
 }
 
-int TEST_CODE_release_meth() {
-  CODE_release_meth(0, 0);
+int TEST_NVM_CODE_release_meth() {
+  NVM_CODE_release_meth(0, 0);
   return 0;
 }
 
-int TEST_CODE_release_insn() {
-  CODE_release_insn(0, 0);
+int TEST_NVM_CODE_release_insn() {
+  NVM_CODE_release_insn(0, 0);
   return 0;
 }
 
-int TEST_CODE_release_ex() {
-  CODE_release_ex(0, 0);
+int TEST_NVM_CODE_release_ex() {
+  NVM_CODE_release_ex(0, 0);
   return 0;
 }
 
@@ -91,11 +91,11 @@ int TEST_code() {
     & TEST_NanoVM_get_prm_type()
     & TEST_NanoVM_get_ref_type()
     & TEST_NanoVM_get_arr_type()
-    & TEST_CODE_release_type()
-    & TEST_CODE_release_field()
-    & TEST_CODE_release_meth()
-    & TEST_CODE_release_insn()
-    & TEST_CODE_release_ex()
+    & TEST_NVM_CODE_release_type()
+    & TEST_NVM_CODE_release_field()
+    & TEST_NVM_CODE_release_meth()
+    & TEST_NVM_CODE_release_insn()
+    & TEST_NVM_CODE_release_ex()
   ;
   return err;
 }
