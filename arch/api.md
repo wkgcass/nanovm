@@ -15,31 +15,33 @@ nanovm $your.clazz.name $arg0 $arg1
 
 ```c
 int main(int argc, char** argv) {
-  int err;
+  int err, bytecode_len;
   nanovm_config_t conf;
-  char* bytecode;
+  nanovm_bytecode_t* bytecodes;
 
   // read bytecode and init conf
   // ...
 
   nanovm_t* vm = NanoVM_create(&conf);
   if (!vm) return -1;
-  err = NanoVM_parse_code(vm, "demo.Sample");
+  err = NanoVM_parse_code(vm, bytecode_len, bytecodes);
   if (err) return -1;
-  err = NanoVM_start(vm);
+  err = NanoVM_start(vm, "demo.Sample");
   // will block the thread when success until executing finished
-  if (err) return -1;
   NanoVM_release(vm);
   NanoVM_GLOBAL_free();
+  if (err) return -1;
   return 0;
 }
 ```
 
 # 面向开发者
 
-所有模块头文件 **仅** 引入`nanovm.internal.h`。如果有不向模块外开放的API，统一在`${module}.internal.h`内定义。不同模块只能引用开放的API。
+如果有不向模块外开放的API，统一在`${module}.internal.h`内定义。不同模块只能引用开放的API。
 
-所有开放API均以`NanoVM_`开头。各模块API **不** 加自身独特前缀。模块内API可加模块前缀，例如`CODE_xxx|STACK_xxx`等。
+所有开放API均以`NanoVM_`开头。各模块API **不** 加自身独特前缀。模块内API可加模块前缀，例如`NVM_CODE_xxx|NVM_STACK_xxx`等。
+
+所有类型均附带`nvm_`前缀。
 
 * “操作”API，若不可能失败，则返回void，否则返回`int`,0=成功，-1=失败。
 * “创建”API均返回创建对象的引用，NULL=失败。
