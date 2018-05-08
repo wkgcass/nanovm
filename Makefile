@@ -7,7 +7,8 @@ include $(GMSL_DIR)/gmsl
 TMP := tmp/
 OS := $(shell uname -s)
 
-CFLAGS += -g -Wall -Wextra -Werror -Wno-unused-parameter
+STD = -std=c11
+CFLAGS += -g -Wall -Wextra -Werror -Wno-unused-parameter $(STD)
 LDLIBS += -lpthread
 
 ifeq ($(OS),Linux)

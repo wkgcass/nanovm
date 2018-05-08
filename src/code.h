@@ -9,11 +9,12 @@
 #define NVM_ACC_STATIC   0x0008
 #define NVM_ACC_NATIVE   0x0100
 
+#define NVM_TYPE_NULL 0
+
 #define NVM_TYPE_PRM 1
 #define NVM_TYPE_REF 2
 #define NVM_TYPE_ARR 3
 
-#define NVM_PRM_TYPE_NULL    0
 #define NVM_PRM_TYPE_INT     'I'
 #define NVM_PRM_TYPE_FLOAT   'F'
 #define NVM_PRM_TYPE_LONG    'J'
@@ -58,16 +59,16 @@ typedef struct _nvm_prm_type_ {
 } nvm_prm_type_t;
 
 typedef struct _nvm_ref_type_ {
-     nvm_type_t super;
+       nvm_type_t super;
 
-    nvm_type_t* parent_type;
-          char* name;
-            int field_len;
-  nvm_field_t** fields;
-            int meth_len;
-   nvm_meth_t** meths;
+  nvm_ref_type_t* parent_type;
+            char* name;
+              int field_len;
+    nvm_field_t** fields;
+              int meth_len;
+     nvm_meth_t** meths;
 
-         size_t size;
+           size_t size;
 } nvm_ref_type_t;
 
 typedef struct _nvm_arr_type_ {
@@ -82,8 +83,14 @@ typedef struct _nvm_field_ {
             int acc;
           char* name;
     nvm_type_t* type;
+         size_t off; // the memory between last pos of object header and first pos of the field
+                     // e.g. [object header]$1[object mem,$2 this_field_mem_size,object mem]
+                     // then off = $2 - $1
+                     // it equals
+                     // dec_type->parent_type->size + sizeof(void*) * $field_count_before_this_field
+                     // all field mem (primitive or reference) holds a pointer size and stores a pointer
   nvm_object_t* static_v;
-} field_t;
+} nvm_field_t;
 
 typedef struct _nvm_meth_ {
    nvm_type_t* dec_type;

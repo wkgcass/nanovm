@@ -28,10 +28,10 @@ int TEST_NanoVM_get_native_meth() {
 int TEST_native() {
   int err =
       TEST_NanoVM_GLOBAL_init_native()
-    & TEST_NanoVM_GLOBAL_free_native()
-    & TEST_NanoVM_create_native_mgr()
-    & TEST_NanoVM_release_native_mgr()
-    & TEST_NanoVM_get_native_meth()
+    | TEST_NanoVM_GLOBAL_free_native()
+    | TEST_NanoVM_create_native_mgr()
+    | TEST_NanoVM_release_native_mgr()
+    | TEST_NanoVM_get_native_meth()
   ;
   return err;
 }

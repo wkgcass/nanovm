@@ -38,12 +38,12 @@ int TEST_NanoVM_release() {
 int TEST_nanovm() {
   int err =
       TEST_NanoVM_GLOBAL_init()
-    & TEST_NanoVM_GLOBAL_free()
-    & TEST_NanoVM_parse_code()
-    & TEST_NanoVM_create()
-    & TEST_NanoVM_start()
-    & TEST_NanoVM_stop()
-    & TEST_NanoVM_release()
+    | TEST_NanoVM_GLOBAL_free()
+    | TEST_NanoVM_parse_code()
+    | TEST_NanoVM_create()
+    | TEST_NanoVM_start()
+    | TEST_NanoVM_stop()
+    | TEST_NanoVM_release()
   ;
   return err;
 }

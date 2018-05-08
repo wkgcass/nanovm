@@ -33,11 +33,11 @@ int TEST_NanoVM_release_thread() {
 int TEST_thread() {
   int err =
       TEST_NanoVM_create_thread_mgr()
-    & TEST_NanoVM_release_thread_mgr()
-    & TEST_NanoVM_create_thread()
-    & TEST_NanoVM_start_thread()
-    & TEST_NanoVM_stop_thread()
-    & TEST_NanoVM_release_thread()
+    | TEST_NanoVM_release_thread_mgr()
+    | TEST_NanoVM_create_thread()
+    | TEST_NanoVM_start_thread()
+    | TEST_NanoVM_stop_thread()
+    | TEST_NanoVM_release_thread()
   ;
   return err;
 }
