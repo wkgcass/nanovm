@@ -1,6 +1,8 @@
 #ifndef NANOVM_H
 #define NANOVM_H 1
 
+#include <stddef.h>
+
 typedef struct _nanovm_ nanovm_t;
 
 typedef struct {
@@ -11,12 +13,17 @@ typedef struct {
    int thread_cap; // max thread size
 } nanovm_config_t;
 
+typedef struct {
+  size_t len;
+   char* bytecode;
+} nanovm_bytecode_t;
+
  int NanoVM_GLOBAL_init();
 void NanoVM_GLOBAL_free();
 
 nanovm_t* NanoVM_create(nanovm_config_t* conf);
 
-int NanoVM_parse_code(nanovm_t* vm, char** bytecode);
+int NanoVM_parse_code(nanovm_t* vm, int bytecode_len, nanovm_bytecode_t* bytecodes);
 
  int NanoVM_start  (nanovm_t* nanovm, char* main_class);
  int NanoVM_stop   (nanovm_t* nanovm);

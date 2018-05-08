@@ -16,7 +16,7 @@ int TEST_NanoVM_create() {
 }
 
 int TEST_NanoVM_parse_code() {
-  NanoVM_parse_code(0, 0);
+  NanoVM_parse_code(0, 0, 0);
   return 0;
 }
 

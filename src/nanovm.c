@@ -17,7 +17,7 @@ nanovm_t* NanoVM_create(nanovm_config_t* conf) {
   return NULL;
 }
 
-int NanoVM_parse_code(nanovm_t* vm, char** bytecode) {
+int NanoVM_parse_code(nanovm_t* vm, int bytecode_len, nanovm_bytecode_t* bytecodes) {
   // TODO
   debug_log0("NanoVM_parse_code");
   return 0;
