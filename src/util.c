@@ -44,7 +44,7 @@ int NanoVM_rand_int(int max) {
   return (rand() % (max - 2)) + 1;
 }
 
-void write_log(int e, const char *fmt, ...) {
+void NanoVM_write_log(int e, const char *fmt, ...) {
   char * name = "[nanovm] ";
   char * newfmt;
   va_list l;

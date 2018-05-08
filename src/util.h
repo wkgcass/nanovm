@@ -22,11 +22,11 @@ void NanoVM_lock     (nvm_lock_t* lock, int tid);
 
 int NanoVM_rand_int(int max);
 
-void write_log(int e, const char *fmt, ...);
+void NanoVM_write_log(int e, const char *fmt, ...);
 
-#define debug_log0(fmt) write_log(0, fmt)
-#define debug_log1(fmt, a) write_log(0, fmt, a)
-#define error_log0(fmt) write_log(1, fmt)
-#define error_log1(fmt, a) write_log(1, fmt, a)
+#define NanoVM_debug_log0(fmt) NanoVM_write_log(0, fmt)
+#define NanoVM_debug_log1(fmt, a) NanoVM_write_log(0, fmt, a)
+#define NanoVM_error_log0(fmt) NanoVM_write_log(1, fmt)
+#define NanoVM_error_log1(fmt, a) NanoVM_write_log(1, fmt, a)
 
 #endif
