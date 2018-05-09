@@ -5,10 +5,9 @@
 #include "zmalloc.h"
 
 typedef struct _nanovm_ nanovm_t;
-typedef struct _nvm_thread_ nvm_thread_t;
 typedef struct {
-      nanovm_t* vm;
-  nvm_thread_t* thread;
+  nanovm_t* vm;
+        int tid;
 } nvm_ctx_t;
 
 typedef struct {
