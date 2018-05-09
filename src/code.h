@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include "util.h"
 #include "nanovm.h"
+#include "memory.h"
+#include "class.h"
 
 // we only consider these acc flags
 #define NVM_ACC_STATIC   0x0008
@@ -30,7 +32,6 @@
 // memory.h
 typedef struct _nvm_header_ nvm_hdr_t;
 typedef nvm_hdr_t nvm_object_t;
-
 typedef struct _nvm_code_mgr_  nvm_code_mgr_t;
 typedef struct _nvm_type_      nvm_type_t;
 typedef struct _nvm_prm_type_  nvm_prm_type_t;
@@ -46,6 +47,11 @@ typedef struct _nvm_code_mgr_ {
            int type_len;
   nvm_type_t** types;
 } nvm_code_mgr_t;
+
+typedef struct _nvm_bytecode_{
+    int len;
+    char* bytecode;
+} nvm_bytecode_t;
 
 typedef struct _nvm_type_ {
   char cat; // category
@@ -78,7 +84,6 @@ typedef struct _nvm_arr_type_ {
 
 typedef struct _nvm_field_ {
     nvm_type_t* dec_type;
-
             int acc;
           char* name;
     nvm_type_t* type;
@@ -124,7 +129,7 @@ typedef struct _nvm_ex_ {
 nvm_code_mgr_t* NanoVM_create_code_mgr (nvm_ctx_t* ctx, int type_cap);
            void NanoVM_release_code_mgr(nvm_ctx_t* ctx, nvm_code_mgr_t* code_mgr);
 
-         int NanoVM_parse_code0(nvm_ctx_t* ctx, char** bytecode);
+int NanoVM_parse_code0(nvm_ctx_t* ctx, int bytecode_len, nvm_bytecode_t* bytecodes);
  nvm_meth_t* NanoVM_get_meth   (nvm_ctx_t* ctx, nvm_ref_type_t* ref_type, char* name, nvm_type_t* ret_type, int param_len, nvm_type_t** param_types);
 nvm_field_t* NanoVM_get_field  (nvm_ctx_t* ctx, nvm_ref_type_t* ref_type, char* name);
 
@@ -217,7 +222,7 @@ typedef struct {
 } nvm_insn_m_a_arr_t; // multi a new array
 
 // -----END instructions category-----
-
+#define NVM_OPCODE_SIZE 256
 // -----BEGIN opcode-----
 // formatted from zxh0/classpy com.github.zxh.classpy.classfile.jvm.Opcode
 // 2018-05-05
