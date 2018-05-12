@@ -23,6 +23,13 @@ void NanoVM_GLOBAL_free();
 
 nanovm_t* NanoVM_create(nanovm_config_t* conf);
 
+// -----BEGIN memory module funcs-----
+size_t NanoVM_get_mem_usage (nanovm_t* vm);
+size_t NanoVM_get_heap_usage(nanovm_t* vm);
+size_t NanoVM_get_mem_cap   (nanovm_t* vm);
+size_t NanoVM_get_heap_cap  (nanovm_t* vm);
+// -----END memory module funcs-----
+
 int NanoVM_parse_code(nanovm_t* vm, int bytecode_len, nanovm_bytecode_t* bytecodes);
 
  int NanoVM_start  (nanovm_t* nanovm, char* main_class);

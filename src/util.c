@@ -8,16 +8,21 @@
 
 int NanoVM_init_lock(nvm_lock_t* lock) {
   lock->tid = 0;
+  lock->cnt = 0;
   return 0;
 }
 
 int NanoVM_try_lock(nvm_lock_t* lock, int tid) {
   if (lock->tid == tid) {
+    ++lock->cnt;
     return 0;
   }
   if (!lock->tid) {
     lock->tid = tid;
-    return lock->tid == tid;
+    if (lock->tid == tid) {
+      ++lock->cnt;
+      return 0;
+    }
   }
   // lock->tid != tid
   return -1;
@@ -31,7 +36,9 @@ int NanoVM_unlock(nvm_lock_t* lock, int tid) {
   if (lock->tid != tid) {
     return -1;
   }
-  lock->tid = 0;
+  if (!(--lock->cnt)) {
+    lock->tid = 0;
+  }
   return 0;
 }
 

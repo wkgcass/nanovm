@@ -2,6 +2,7 @@
 #define NANOVM_UTIL_H 1
 
 // base headers
+#include <stddef.h>
 #include "zmalloc.h"
 
 typedef struct _nanovm_ nanovm_t;
@@ -12,6 +13,7 @@ typedef struct {
 
 typedef struct {
   int tid; // it's the nanovm thread id, not os tid
+  int cnt;
 } nvm_lock_t;
 
  int NanoVM_init_lock(nvm_lock_t* lock);

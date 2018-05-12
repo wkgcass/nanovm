@@ -50,6 +50,21 @@ int TEST_NanoVM_unlock() {
   return 0;
 }
 
+int TEST_lock_may_times() {
+  nvm_lock_t lock;
+  NanoVM_init_lock(&lock);
+  NanoVM_lock(&lock, 1);
+  NanoVM_lock(&lock, 1);
+  TEST(lock.cnt == 2, "NanoVM_lock should increase lock.cnt");
+  NanoVM_unlock(&lock, 1);
+  TEST(lock.cnt == 1, "NanoVM_unlock should decrease lock.cnt");
+  NanoVM_unlock(&lock, 1);
+  TEST(lock.tid == 0, "NanoVM_unlock releases the lock when lock.cnt is 0");
+  NanoVM_lock(&lock, 2);
+  // should retrieve lock successfully
+  return 0;
+}
+
 int TEST_NanoVM_rand_int() {
   int res, i;
   for (i = 0; i < 65536; ++i) { // run many times
@@ -63,10 +78,11 @@ int TEST_NanoVM_rand_int() {
 int TEST_util() {
   int err =
       TEST_NanoVM_init_lock()
-    & TEST_NanoVM_try_lock()
-    & TEST_NanoVM_lock()
-    & TEST_NanoVM_unlock()
-    & TEST_NanoVM_rand_int()
+    | TEST_NanoVM_try_lock()
+    | TEST_NanoVM_lock()
+    | TEST_NanoVM_unlock()
+    | TEST_NanoVM_rand_int()
+    | TEST_lock_may_times()
   ;
   return err;
 }
