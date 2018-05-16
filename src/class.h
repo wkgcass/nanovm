@@ -787,13 +787,13 @@ int read_class(Bytecode* bytecode, Class* nvm_class);
 
 /* Parse the attribute properties from opcode array into attr.
  * See section 4.7 of the JVM spec. */
-void parse_attribute(Bytecode* bytecode, Attribute* attr);
+int parse_attribute(Bytecode* bytecode, Attribute* attr);
 
 /* Parse the constant pool into class from opcode array. index MUST be at the correct seek point i.e. byte offset 11.
  * The number of bytes read is returned. A return value of 0 signifies an invalid constant pool and class may have been changed.
  * See section 4.4 of the JVM spec.
  */
-void parse_const_pool(Class* nvm_class, const uint16_t const_pool_count, Bytecode* bytecode);
+int parse_const_pool(Class* nvm_class, const uint16_t const_pool_count, Bytecode* bytecode);
 
 /* Parse the initial section of the given byteopcode array up to and including the constant_pool_size section */
 void parse_header(Bytecode* bytecode, Class* nvm_class);

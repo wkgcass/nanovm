@@ -710,7 +710,7 @@ int read_class(Bytecode* bytecode, Class* nvm_class) {
     }
     bytecode_memcpy(&nvm_class->methods_count, bytecode, sizeof(nvm_class->methods_count));
 
-    clanvm_classss->methods_count = generic_be16toh(&nvm_class->methods_count);
+    nvm_class->methods_count = generic_be16toh(&nvm_class->methods_count);
     nvm_class->methods = zcalloc(nvm_class->methods_count * sizeof(Method));
     if (!nvm_class->methods) {
         return -1;
@@ -768,21 +768,22 @@ void parse_header(Bytecode* bytecode, Class* nvm_class) {
     nvm_class->const_pool_count = generic_be16toh(&nvm_class->const_pool_count);
 }
 
-void parse_attribute(Bytecode* bytecode, Attribute* attr) {
+int parse_attribute(Bytecode* bytecode, Attribute* attr) {
     bytecode_memcpy(&attr->name_idx, bytecode, sizeof(u2));
     bytecode_memcpy(&attr->length, bytecode, sizeof(u4));
     attr->name_idx = generic_be16toh(&attr->name_idx);
     attr->length = generic_be32toh(&attr->length);
-    attr->info = zcalloc(attr->length + 1, sizeof(char));
+    attr->info = zcalloc((attr->length + 1) * sizeof(char));
     if (!attr->info) {
         return -1;
     }
 //    attr->info = calloc(attr->length + 1, sizeof(char));
     bytecode_memcpy(attr->info, bytecode, sizeof(char) * attr->length);
     attr->info[attr->length] = '\0';
+    return 0;
 }
 
-void parse_const_pool(Class* nvm_class, const uint16_t const_pool_count, Bytecode* bytecode) {
+int parse_const_pool(Class* nvm_class, const uint16_t const_pool_count, Bytecode* bytecode) {
     const int MAX_ITEMS = const_pool_count - 1;
     uint32_t table_size_bytes = 0;
     int i;
@@ -882,6 +883,7 @@ void parse_const_pool(Class* nvm_class, const uint16_t const_pool_count, Bytecod
         if (item != NULL) nvm_class->items[i - 1] = *item;
     }
     nvm_class->pool_size_bytes = table_size_bytes;
+    return 0;
 }
 
 bool is_class(Bytecode* bytecode) {

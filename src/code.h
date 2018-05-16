@@ -4,7 +4,6 @@
 #include <stddef.h>
 #include "util.h"
 #include "nanovm.h"
-#include "memory.h"
 #include "class.h"
 
 // we only consider these acc flags

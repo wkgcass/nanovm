@@ -1,6 +1,7 @@
 #include "code.internal.h"
 #include "string.h"
 #include "nanovm.internal.h"
+#include "memory.h"
 
 //TODO 1.Fill in opcode  2. fill in field and meth attr
 nvm_opcode_meta_t* opcode_meta = NULL;
@@ -41,8 +42,7 @@ nvm_code_mgr_t* NanoVM_create_code_mgr(nvm_ctx_t* ctx, int type_cap) {
     if (_build_ref_types(ctx) == -1) {
         NanoVM_release_code_mgr(ctx);
     }
-
-
+    return code_mgr;
 }
 
 void NanoVM_release_code_mgr(nvm_ctx_t* ctx) {
@@ -351,6 +351,7 @@ int _build_fields(nvm_ctx_t* ctx, Class* nvm_class, nvm_ref_type_t* ref_type) {
         }
         // TODO  parse and fill in static_v
     }
+    return 0;
 }
 
 int _build_meths(nvm_ctx_t* ctx, Class* nvm_class, nvm_ref_type_t* ref_type) {
@@ -380,6 +381,7 @@ int _build_meths(nvm_ctx_t* ctx, Class* nvm_class, nvm_ref_type_t* ref_type) {
         ref_type->meths[i]->dec_type = (nvm_type_t*) ref_type;
         // TODO
     }
+    return 0;
 }
 
 nvm_type_t* _get_type(nvm_ctx_t* ctx, char* fld_type) {

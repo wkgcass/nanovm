@@ -22,7 +22,7 @@ TEST_NAME := $(NAME)test
 OBJ := o/
 
 EXTERN_LIB_OBJS := $(addprefix $(OBJ),zmalloc.o)
-LIB_OBJS := $(addprefix $(OBJ),code.o memory.o nanovm.o native.o stack.o thread.o util.o) $(EXTERN_LIB_OBJS)
+LIB_OBJS := $(addprefix $(OBJ),class.o code.o memory.o nanovm.o native.o stack.o thread.o util.o) $(EXTERN_LIB_OBJS)
 MAIN_OBJS := $(LIB_OBJS) $(addprefix $(OBJ),main.o)
 TEST_OBJS := $(LIB_OBJS) $(addprefix $(OBJ),test.o)
 OBJS := $(MAIN_OBJS) $(TEST_OBJS)
