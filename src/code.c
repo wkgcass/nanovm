@@ -11,6 +11,7 @@ int NanoVM_GLOBAL_init_code() {
         return -1;
     }
     // TODO Fill in the opcode
+
     return 0;
 }
 
@@ -53,7 +54,6 @@ int NanoVM_parse_code0(nvm_ctx_t* ctx, int bytecode_len, nvm_bytecode_t* bytecod
     }
     nvm_type_t** types = ctx->vm->code_mgr->types;
     int type_cap = ctx->vm->code_mgr->type_cap;
-    int type_len = ctx->vm->code_mgr->type_len;
     // If it is larger than the type capacity, it fails
     if (bytecode_len + NVM_PREDEF_TYPE_CNT > type_cap) {
         NanoVM_error_log0("the parsed bytecode exceeds the maximum size of the type");
@@ -85,7 +85,7 @@ int NanoVM_parse_code0(nvm_ctx_t* ctx, int bytecode_len, nvm_bytecode_t* bytecod
         nvm_ref_type_t* ref_type = (nvm_ref_type_t*) NanoVM_alloc(ctx, sizeof(nvm_ref_type_t));
         if (!ref_type) {
             for (int k = 0; k < i; k++) {
-                NVM_CODE_release_type(ctx, ref_type[NVM_PREDEF_TYPE_CNT + i]);
+                NVM_CODE_release_type(ctx, types[NVM_PREDEF_TYPE_CNT + i]);
             }
             for (int j = 0; j < bytecode_len; j++) {
                 NanoVM_free(ctx, &nvm_class[j]);
@@ -103,7 +103,7 @@ int NanoVM_parse_code0(nvm_ctx_t* ctx, int bytecode_len, nvm_bytecode_t* bytecod
         ref_type->name = (char*) NanoVM_alloc(ctx, sizeof(char) * (cl_str->value.string.length + 1));
         if (!ref_type->name) {
             for (int k = 0; k < i + 1; k++) {
-                NVM_CODE_release_type(ctx, ref_type[NVM_PREDEF_TYPE_CNT + i]);
+                NVM_CODE_release_type(ctx, types[NVM_PREDEF_TYPE_CNT + i]);
             }
             for (int j = 0; j < bytecode_len; j++) {
                 NanoVM_free(ctx, &nvm_class[j]);
@@ -122,7 +122,7 @@ int NanoVM_parse_code0(nvm_ctx_t* ctx, int bytecode_len, nvm_bytecode_t* bytecod
         ref_type->parent_type = (nvm_ref_type_t*) NanoVM_get_ref_type(ctx, sup_cl_str->value.string.value);
         if (!ref_type->parent_type) {
             for (int j = 0; j < bytecode_len; j++) {
-                NVM_CODE_release_type(ctx, ref_type);
+                NVM_CODE_release_type(ctx, types[NVM_PREDEF_TYPE_CNT + j]);
                 NanoVM_free(ctx, &nvm_class[j]);
             }
             NanoVM_debug_log0("can't find parent_type");
@@ -133,7 +133,7 @@ int NanoVM_parse_code0(nvm_ctx_t* ctx, int bytecode_len, nvm_bytecode_t* bytecod
         if (field_cnt != 0) {
             if (_build_fields(ctx, &nvm_class[i], ref_type) == -1) {
                 for (int j = 0; j < bytecode_len; j++) {
-                    NVM_CODE_release_type(ctx, ref_type);
+                    NVM_CODE_release_type(ctx, types[NVM_PREDEF_TYPE_CNT + j]);
                     NanoVM_free(ctx, &nvm_class[j]);
                 }
                 return -1;
@@ -144,8 +144,8 @@ int NanoVM_parse_code0(nvm_ctx_t* ctx, int bytecode_len, nvm_bytecode_t* bytecod
         if (meth_cnt != 0) {
             if (_build_meths(ctx, &nvm_class[i], ref_type) == -1) {
                 for (int j = 0; j < bytecode_len; j++) {
-                    NVM_CODE_release_type(ctx, ref_type);
-                    NanoVM_free(ctx, nvm_class[j]);
+                    NVM_CODE_release_type(ctx, types[NVM_PREDEF_TYPE_CNT + j]);
+                    NanoVM_free(ctx, &nvm_class[j]);
                 }
                 return -1;
             }
@@ -154,7 +154,7 @@ int NanoVM_parse_code0(nvm_ctx_t* ctx, int bytecode_len, nvm_bytecode_t* bytecod
     }
     // finally free memory and type_len increase
     for (int l = 0; l < bytecode_len; l++) {
-        NanoVM_free(ctx, nvm_class[l]);
+        NanoVM_free(ctx, &nvm_class[l]);
     }
     return 0;
 }
@@ -405,7 +405,6 @@ nvm_type_t* _get_type(nvm_ctx_t* ctx, char* fld_type) {
 
 void NVM_CODE_release_type(nvm_ctx_t* ctx, nvm_type_t* type) {
     nvm_ref_type_t* ref_type;
-    nvm_arr_type_t* arr_type;
     if (type->cat == NVM_TYPE_REF) {
         ref_type = (nvm_ref_type_t*) type;
         // free meths
@@ -445,7 +444,7 @@ void NVM_CODE_release_meth(nvm_ctx_t* ctx, nvm_meth_t* meth) {
     }
     // free exs
     for (int i = 0; i < meth->ex_len; i++) {
-        NVM_CODE_release_ex(ctx, meth->exs[nvm_ex_t]);
+        NVM_CODE_release_ex(ctx, meth->exs[i]);
     }
     NanoVM_free(ctx, meth->exs);
     // free insns
