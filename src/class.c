@@ -635,6 +635,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include "zmalloc.h"
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -645,18 +646,16 @@
  */
 int bigendian_flag = 0;
 
-Class* read_class(Bytecode* bytecode) {
+int read_class(Bytecode* bytecode, Class* nvm_class) {
     if (!is_class(bytecode)) {
-        return NULL;
+        return -1;
     }
-    Class* nvm_class = (Class*) malloc(sizeof(Class));
-
     parse_header(bytecode, nvm_class);
 
     parse_const_pool(nvm_class, nvm_class->const_pool_count, bytecode);
 
     if (nvm_class->pool_size_bytes == 0) {
-        return NULL;
+        return -1;
     }
     bytecode_memcpy(&nvm_class->flags, bytecode, sizeof(nvm_class->flags));
     nvm_class->flags = generic_be16toh(&nvm_class->flags);
@@ -666,8 +665,12 @@ Class* read_class(Bytecode* bytecode) {
     nvm_class->super_class = generic_be16toh(&nvm_class->super_class);
     bytecode_memcpy(&nvm_class->interfaces_count, bytecode, sizeof(nvm_class->interfaces_count));
     nvm_class->interfaces_count = generic_be16toh(&nvm_class->interfaces_count);
+    nvm_class->interfaces = zcalloc(nvm_class->interfaces_count * sizeof(Ref));
+    if (!nvm_class->interfaces) {
+        return -1;
+    }
+//  nvm_class->interfaces = calloc(nvm_class->interfaces_count, sizeof(Ref));
 
-    nvm_class->interfaces = calloc(nvm_class->interfaces_count, sizeof(Ref));
     int idx = 0;
     while (idx < nvm_class->interfaces_count) {
         bytecode_memcpy(&nvm_class->interfaces[idx].class_idx, bytecode, sizeof(nvm_class->interfaces[idx].class_idx));
@@ -676,8 +679,11 @@ Class* read_class(Bytecode* bytecode) {
     }
     bytecode_memcpy(&nvm_class->fields_count, bytecode, sizeof(nvm_class->fields_count));
     nvm_class->fields_count = generic_be16toh(&nvm_class->fields_count);
-
-    nvm_class->fields = calloc(nvm_class->fields_count, sizeof(Field));
+    nvm_class->fields = zcalloc(nvm_class->fields_count * sizeof(Field));
+    if (!nvm_class->fields) {
+        return -1;
+    }
+//    nvm_class->fields = calloc(nvm_class->fields_count, sizeof(Field));
     Field* f;
     idx = 0;
     while (idx < nvm_class->fields_count) {
@@ -689,7 +695,11 @@ Class* read_class(Bytecode* bytecode) {
         f->name_idx = generic_be16toh(&f->name_idx);
         f->desc_idx = generic_be16toh(&f->desc_idx);
         f->attrs_count = generic_be16toh(&f->attrs_count);
-        f->attrs = calloc(f->attrs_count, sizeof(Attribute));
+        f->attrs = zcalloc(f->attrs_count * sizeof(Attribute));
+        if (!f->attrs) {
+            return -1;
+        }
+//        f->attrs = calloc(f->attrs_count, sizeof(Attribute));
 
         int aidx = 0;
         while (aidx < f->attrs_count) {
@@ -701,8 +711,11 @@ Class* read_class(Bytecode* bytecode) {
     bytecode_memcpy(&nvm_class->methods_count, bytecode, sizeof(nvm_class->methods_count));
 
     clanvm_classss->methods_count = generic_be16toh(&nvm_class->methods_count);
-
-    nvm_class->methods = calloc(nvm_class->methods_count, sizeof(Method));
+    nvm_class->methods = zcalloc(nvm_class->methods_count * sizeof(Method));
+    if (!nvm_class->methods) {
+        return -1;
+    }
+//    nvm_class->methods = calloc(nvm_class->methods_count, sizeof(Method));
     Method* m;
     idx = 0;
     while (idx < nvm_class->methods_count) {
@@ -715,7 +728,11 @@ Class* read_class(Bytecode* bytecode) {
         m->name_idx = generic_be16toh(&m->name_idx);
         m->desc_idx = generic_be16toh(&m->desc_idx);
         m->attrs_count = generic_be16toh(&m->attrs_count);
-        m->attrs = calloc(m->attrs_count, sizeof(Attribute));
+        m->attrs = zcalloc(m->attrs_count * sizeof(Attribute));
+        if (!m->attrs) {
+            return -1;
+        }
+//        m->attrs = calloc(m->attrs_count, sizeof(Attribute));
 
         int aidx = 0;
         while (aidx < m->attrs_count) {
@@ -727,14 +744,17 @@ Class* read_class(Bytecode* bytecode) {
     bytecode_memcpy(&nvm_class->attributes_count, bytecode, sizeof(nvm_class->attributes_count));
 
     nvm_class->attributes_count = generic_be16toh(&nvm_class->attributes_count);
-
-    nvm_class->attributes = calloc(nvm_class->attributes_count, sizeof(Attribute));
+    nvm_class->attributes = zcalloc(nvm_class->attributes_count * sizeof(Attribute));
+    if (!nvm_class->attributes) {
+        return -1;
+    }
+//    nvm_class->attributes = calloc(nvm_class->attributes_count, sizeof(Attribute));
     idx = 0;
     while (idx < nvm_class->attributes_count) {
         parse_attribute(bytecode, nvm_class->attributes + idx);
         idx++;
     }
-    return nvm_class;
+    return 0;
 }
 
 void parse_header(Bytecode* bytecode, Class* nvm_class) {
@@ -753,7 +773,11 @@ void parse_attribute(Bytecode* bytecode, Attribute* attr) {
     bytecode_memcpy(&attr->length, bytecode, sizeof(u4));
     attr->name_idx = generic_be16toh(&attr->name_idx);
     attr->length = generic_be32toh(&attr->length);
-    attr->info = calloc(attr->length + 1, sizeof(char));
+    attr->info = zcalloc(attr->length + 1, sizeof(char));
+    if (!attr->info) {
+        return -1;
+    }
+//    attr->info = calloc(attr->length + 1, sizeof(char));
     bytecode_memcpy(attr->info, bytecode, sizeof(char) * attr->length);
     attr->info[attr->length] = '\0';
 }
@@ -764,8 +788,11 @@ void parse_const_pool(Class* nvm_class, const uint16_t const_pool_count, Bytecod
     int i;
     char tag_byte;
     Ref r;
-
-    nvm_class->items = calloc(MAX_ITEMS, sizeof(Class));
+    nvm_class->items = zcalloc(MAX_ITEMS * sizeof(Class));
+    if (!nvm_class->items) {
+        return -1;
+    }
+//    nvm_class->items = calloc(MAX_ITEMS, sizeof(Class));
     for (i = 1; i <= MAX_ITEMS; i++) {
         bytecode_memcpy(&tag_byte, bytecode, sizeof(char));
         if (tag_byte < MIN_CPOOL_TAG || tag_byte > MAX_CPOOL_TAG) {

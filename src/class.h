@@ -656,7 +656,7 @@ typedef enum {
 typedef struct {
     uint16_t name_idx;
     uint32_t length;
-    char *info;
+    char* info;
 } Attribute;
 
 
@@ -670,7 +670,7 @@ typedef struct {
     uint16_t name_idx;
     uint16_t desc_idx;
     uint16_t attrs_count;
-    Attribute *attrs;
+    Attribute* attrs;
 } Field;
 
 typedef struct {
@@ -683,7 +683,7 @@ typedef struct {
     uint16_t name_idx;
     uint16_t desc_idx;
     uint16_t attrs_count;
-    Attribute *attrs;
+    Attribute* attrs;
 } Method;
 
 /* Wraps references to an item in the constant pool */
@@ -694,7 +694,7 @@ typedef struct {
 
 typedef struct {
     uint16_t length;
-    char *value;
+    char* value;
 } String;
 
 typedef struct {
@@ -715,22 +715,22 @@ typedef struct {
     uint16_t major_version;
     uint16_t const_pool_count;
     uint32_t pool_size_bytes;
-    Item *items;
+    Item* items;
     uint16_t flags;
     uint16_t this_class;
     uint16_t super_class;
     uint16_t interfaces_count;
-    Ref *interfaces;
+    Ref* interfaces;
     uint16_t fields_count;
-    Field *fields;
+    Field* fields;
     uint16_t methods_count;
-    Method *methods;
+    Method* methods;
     uint16_t attributes_count;
-    Attribute *attributes;
+    Attribute* attributes;
 } Class;
 
 typedef struct {
-    char *data;
+    char* data;
     int len;
     int idx;
 } Bytecode;
@@ -752,7 +752,7 @@ typedef enum {
     INVOKE_DYNAMIC = 18
 } CPool_t;
 
-static char *CPool_strings[] = {
+static char* CPool_strings[] = {
         "Undefined", // 0
         "String_UTF8",
         "Undefined", // 2
@@ -783,29 +783,29 @@ enum RANGES {
 
 
 /* Parse the given opcode array into a Class struct. */
-Class *read_class(Bytecode *bytecode);
+int read_class(Bytecode* bytecode, Class* nvm_class);
 
 /* Parse the attribute properties from opcode array into attr.
  * See section 4.7 of the JVM spec. */
-void parse_attribute(Bytecode *bytecode, Attribute *attr);
+void parse_attribute(Bytecode* bytecode, Attribute* attr);
 
 /* Parse the constant pool into class from opcode array. index MUST be at the correct seek point i.e. byte offset 11.
  * The number of bytes read is returned. A return value of 0 signifies an invalid constant pool and class may have been changed.
  * See section 4.4 of the JVM spec.
  */
-void parse_const_pool(Class *class, const uint16_t const_pool_count, Bytecode *bytecode);
+void parse_const_pool(Class* nvm_class, const uint16_t const_pool_count, Bytecode* bytecode);
 
 /* Parse the initial section of the given byteopcode array up to and including the constant_pool_size section */
-void parse_header(Bytecode *bytecode, Class *class);
+void parse_header(Bytecode* bytecode, Class* nvm_class);
 
 /* Return true if class's first four bytes match 0xcafebabe. */
-bool is_class(Bytecode *bytecode);
+bool is_class(Bytecode* bytecode);
 
 /* Return the item pointed to by cp_idx, the index of an item in the constant pool */
-Item *get_item(const Class *class, const uint16_t cp_idx);
+Item* get_item(const Class* nvm_class, const uint16_t cp_idx);
 
 /* Resolve a Class's name by following class->items[index].ref.class_idx */
-Item *get_class_string(const Class *class, const uint16_t index);
+Item* get_class_string(const Class* nvm_class, const uint16_t index);
 
 /* Convert the high and low bits of dbl to a double type */
 double to_double(const Double dbl);
@@ -814,22 +814,22 @@ double to_double(const Double dbl);
 long to_long(Long lng);
 
 /* Convert the 2-byte field type to a friendly string e.g. "J" to "long" */
-char *field2str(const char fld_type);
+char* field2str(const char fld_type);
 
 /* Convert tag byte to its string name/label */
-static inline char *tag2str(uint8_t tag) {
+static inline char* tag2str(uint8_t tag) {
     return CPool_strings[tag];
 }
 
 /* Write the name and class stats/contents to the given stream. */
-void print_class(const Class *class);
+void print_class(const Class* nvm_class);
 
 /* Continuously copy bytecode array from memory */
-void bytecode_memcpy(void *target, Bytecode *bytecode, size_t len);
+void bytecode_memcpy(void* target, Bytecode* bytecode, size_t len);
 
-uint16_t generic_be16toh(void *memory);
+uint16_t generic_be16toh(void* memory);
 
-uint32_t generic_be32toh(void *memory);
+uint32_t generic_be32toh(void* memory);
 
 int is_bigendian(void);
 

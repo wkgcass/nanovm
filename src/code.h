@@ -154,11 +154,15 @@ nvm_arr_type_t* NanoVM_get_arr_type(nvm_ctx_t* ctx, nvm_type_t* comp_type);
 
 int _build_prm_types(nvm_ctx_t* ctx);
 
-nvm_prm_type_t* _create_prm_type(nvm_ctx_t* ctx, char prm_type);
+int _build_ref_types(nvm_ctx_t* ctx);
+
+int _create_prm_type(nvm_ctx_t* ctx, char prm_type);
 
 int _build_fields(nvm_ctx_t* ctx, Class* class, nvm_ref_type_t* ref_type);
 
 int _build_meths(nvm_ctx_t* ctx, Class* class, nvm_ref_type_t* ref_type);
+
+void _release_class(Class* nvm_class);
 
 nvm_type_t* _get_type(nvm_ctx_t* ctx, char* fld_type);
 
