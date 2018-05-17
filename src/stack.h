@@ -19,7 +19,7 @@ typedef struct _nvm_stack_ {
             int frame_cap;
             int frame_len;
   nvm_frame_t** frames;
-} stack_t;
+} nvm_stack_t;
 
 typedef struct _nvm_result_ {
   nvm_object_t* ret; // method return value

@@ -161,7 +161,7 @@ int _build_fields(nvm_ctx_t* ctx, Class* class, nvm_ref_type_t* ref_type);
 
 int _build_meths(nvm_ctx_t* ctx, Class* class, nvm_ref_type_t* ref_type);
 
-void _release_class(Class* nvm_class);
+void _release_class(nvm_node_t* head);
 
 nvm_type_t* _get_type(nvm_ctx_t* ctx, char* fld_type);
 
