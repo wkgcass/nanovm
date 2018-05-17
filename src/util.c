@@ -76,3 +76,41 @@ void NanoVM_write_log(int e, const char *fmt, ...) {
   va_end(l);
   zfree(newfmt);
 }
+
+nvm_node_t* NanoVM_init_linkedlist(){
+  nvm_node_t* head = (nvm_node_t*) zmalloc(sizeof(nvm_node_t));
+  if (!head) {
+    return NULL;
+  }
+  head->next = NULL;
+  head->addr = NULL;
+  return head;
+}
+
+int NanoVM_ins_node(nvm_node_t* head, void* addr) {
+  nvm_node_t* new_node = (nvm_node_t*) zmalloc(sizeof(nvm_node_t));
+  if (!new_node) {
+    return -1;
+  }
+  new_node->next = NULL;
+  new_node->addr = addr;
+  nvm_node_t* node = head;
+  while (node->next) {
+    node = node->next;
+  }
+  node->next = new_node;
+  return 0;
+}
+
+void NanoVM_del_all(nvm_node_t* head) {
+  if (!head) {
+    return;
+  }
+  nvm_node_t* node = head;
+  while (node->next) {
+    nvm_node_t* tmp = node->next;
+    zfree(node);
+    node = tmp;
+  }
+  zfree(node);
+}
