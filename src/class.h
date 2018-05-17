@@ -638,6 +638,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include "util.h"
 
 #define u2 uint16_t
 #define u4 uint32_t
@@ -783,7 +784,7 @@ enum RANGES {
 
 
 /* Parse the given opcode array into a Class struct. */
-int read_class(Bytecode* bytecode, Class* nvm_class);
+nvm_node_t* read_class(Bytecode* bytecode, Class* nvm_class);
 
 /* Parse the attribute properties from opcode array into attr.
  * See section 4.7 of the JVM spec. */
@@ -818,7 +819,7 @@ char* field2str(const char fld_type);
 
 /* Convert tag byte to its string name/label */
 static inline char* tag2str(uint8_t tag) {
-    return CPool_strings[tag];
+  return CPool_strings[tag];
 }
 
 /* Write the name and class stats/contents to the given stream. */
