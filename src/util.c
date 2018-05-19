@@ -76,3 +76,26 @@ void NanoVM_write_log(int e, const char *fmt, ...) {
   va_end(l);
   zfree(newfmt);
 }
+
+char* NanoVM_strerror(int err) {
+  if (err > 0xEE00) {
+    switch (err) {
+      case NVM_ERR_OOM_MEM:
+        return "Out of memory";
+      case NVM_ERR_OOM_HEP:
+        return "Out of heap memory";
+      case NVM_ERR_STK_OVR:
+        return "Stack over flow";
+      case NVM_ERR_MET_DEF:
+        return "No such method";
+      case NVM_ERR_FLD_DEF:
+        return "No such field";
+      case NVM_ERR_CLS_DEF:
+        return "No class def found";
+      default:
+        return NULL;
+    }
+  } else {
+    return NULL;
+  }
+}

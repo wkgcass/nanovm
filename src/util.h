@@ -4,6 +4,7 @@
 // base headers
 #include <stddef.h>
 #include "zmalloc.h"
+#include "err.h"
 
 typedef struct _nanovm_ nanovm_t;
 typedef struct {
@@ -24,6 +25,8 @@ void NanoVM_lock     (nvm_lock_t* lock, int tid);
 int NanoVM_rand_int(int max);
 
 void NanoVM_write_log(int e, const char *fmt, ...);
+
+char* NanoVM_strerror(int err); // only considers nanovm errors
 
 #define NanoVM_debug_log0(fmt) NanoVM_write_log(0, fmt)
 #define NanoVM_debug_log1(fmt, a) NanoVM_write_log(0, fmt, a)
