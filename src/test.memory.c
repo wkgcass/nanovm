@@ -1,6 +1,7 @@
 #include "memory.internal.h"
 
 #include "zmalloc.h"
+#include "errno.h"
 
 #define INIT_MEM_MGR(heap, mem)\
 nvm_mem_mgr_t* mem_mgr = NanoVM_create_mem_mgr(ctx, heap, mem);\
@@ -347,12 +348,14 @@ int TEST_oom() {
 
   void* mem = NanoVM_alloc(ctx, 2048);
   TEST(mem == NULL, "mem should oom");
+  TEST(errno == NVM_ERR_OOM_MEM, "errno should be NVM_ERR_OOM_MEM");
 
   nvm_prm_type_t* int_type;
   _build_prm_type(ctx, &int_type, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
   mem = NanoVM_alloc_heap(ctx, (nvm_type_t*)int_type);
   TEST(mem == NULL, "heap should oom");
+  TEST(errno == NVM_ERR_OOM_HEP, "errno should be NVM_ERR_OOM_HEP");
 
   return 0;
 }

@@ -1,6 +1,7 @@
 #include "nanovm.internal.h"
 #include "stack.internal.h"
 #include <string.h>
+#include <errno.h>
 
 #define INIT_STACK_MGR(frame_cap)\
   NanoVM_create_mem_mgr(ctx, 65536, 65536);\
@@ -181,6 +182,7 @@ int TEST_stack_over_flow() {
   TEST(frame != NULL, "frame should be created 2");
   frame = NanoVM_create_frame(ctx, stack, meth, 10, local);
   TEST(frame == NULL, "create frame should fail, and stack over flow");
+  TEST(errno == NVM_ERR_STK_OVR, "errno should be set to NVM_ERR_STK_OVR");
 
   return 0;
 }

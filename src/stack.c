@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include "zmalloc.h"
+#include "err.h"
 
 nvm_insn_handle_t* insn_handles;
 
@@ -65,6 +66,7 @@ void NanoVM_release_stack(nvm_ctx_t* ctx, nvm_stack_t* stack) {
 nvm_frame_t* NanoVM_create_frame(nvm_ctx_t* ctx, nvm_stack_t* stack, nvm_meth_t* meth, int local_var_len, nvm_object_t** local_vars) {
   if (stack->frame_len == stack->frame_cap) {
     NanoVM_debug_log0("stack over flow: stack");
+    errno = NVM_ERR_STK_OVR;
     return NULL;
   }
 

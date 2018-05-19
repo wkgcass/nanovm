@@ -1,6 +1,7 @@
 #include "memory.internal.h"
 #include <stdint.h>
 #include <string.h>
+#include "err.h"
 
 #include "memory.prm.c"
 
@@ -119,12 +120,14 @@ void* _alloc_heap(nvm_ctx_t* ctx, size_t len) {
   if (mgr->heap_used + len > mgr->heap_cap) {
     NanoVM_unlock(&mgr->lock, ctx->tid);
     NanoVM_debug_log0("no heap space left");
+    errno = NVM_ERR_OOM_HEP;
     return NULL;
   }
   nvm_object_t* ret = zmalloc(len);
   if (!ret) {
     NanoVM_unlock(&mgr->lock, ctx->tid);
     NanoVM_debug_log1("zmalloc %zu failed", len);
+    errno = NVM_ERR_OOM_HEP;
     return NULL;
   }
 
@@ -201,12 +204,14 @@ void* NanoVM_alloc(nvm_ctx_t* ctx, size_t size) {
   if (mgr->mem_used + size > mgr->mem_cap) {
     NanoVM_unlock(&mgr->lock, ctx->tid);
     NanoVM_debug_log0("no mem left");
+    errno = NVM_ERR_OOM_MEM;
     return NULL;
   }
   void* ret = zmalloc(size);
   if (!ret) {
     NanoVM_unlock(&mgr->lock, ctx->tid);
     NanoVM_debug_log1("zmalloc %zu failed", size);
+    errno = NVM_ERR_OOM_MEM;
     return NULL;
   }
   mgr->mem_used += zmalloc_size(ret);
