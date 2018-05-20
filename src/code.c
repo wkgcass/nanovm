@@ -112,7 +112,7 @@ int NanoVM_parse_code0(nvm_ctx_t* ctx, int bytecode_len, nvm_bytecode_t* bytecod
     nvm_ref_type_t* ref_type = (nvm_ref_type_t*) NanoVM_alloc(ctx, sizeof(nvm_ref_type_t));
     if (!ref_type) {
       for (int k = 0; k < i; k++) {
-        NVM_CODE_release_type(ctx, types[type_len + i]);
+        NVM_CODE_release_type(ctx, types[type_len + k]);
       }
       for (int j = 0; j < bytecode_len; j++) {
         free_ref(class_list[j]);
@@ -134,7 +134,7 @@ int NanoVM_parse_code0(nvm_ctx_t* ctx, int bytecode_len, nvm_bytecode_t* bytecod
     ref_type->name = (char*) NanoVM_alloc(ctx, sizeof(char) * (str->c_detail.u8_info.len + 1));
     if (!ref_type->name) {
       for (int k = 0; k < i + 1; k++) {
-        NVM_CODE_release_type(ctx, types[type_len + i]);
+        NVM_CODE_release_type(ctx, types[type_len + k]);
       }
       for (int j = 0; j < bytecode_len; j++) {
         free_ref(class_list[j]);
@@ -280,6 +280,9 @@ nvm_arr_type_t* NanoVM_get_arr_type(nvm_ctx_t* ctx, nvm_type_t* comp_type) {
   }
   //if not found arr type. should generate a arr type
   nvm_arr_type_t* new_arr_type = NanoVM_alloc(ctx, sizeof(nvm_arr_type_t));
+  if (!new_arr_type) {
+    return NULL;
+  }
   new_arr_type->super.cat = NVM_TYPE_ARR;
   new_arr_type->comp_type = comp_type;
   types[len] = (nvm_type_t*) new_arr_type;
@@ -308,6 +311,9 @@ int _build_ref_types(nvm_ctx_t* ctx) {
   java_lang_Object->field_len = 0;
   java_lang_Object->meth_len = 0;
   java_lang_Object->name = NanoVM_alloc(ctx, sizeof("java/lang/Object"));
+  if (!java_lang_Object->name) {
+    return -1;
+  }
   memcpy(java_lang_Object->name, "java/lang/Object", sizeof("java/lang/Object"));
   // TODO fill in method info
   java_lang_Object->parent_type = NULL;
