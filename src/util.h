@@ -34,6 +34,10 @@ nvm_node_t* NanoVM_init_linkedlist();
 
 int NanoVM_ins_node(nvm_node_t* head, void* addr);
 
+void* malloc_ref(nvm_node_t* head, size_t size);
+
+void free_ref(nvm_node_t* head);
+
 void NanoVM_del_all(nvm_node_t* head);
 #define NanoVM_debug_log0(fmt) NanoVM_write_log(0, fmt)
 #define NanoVM_debug_log1(fmt, a) NanoVM_write_log(0, fmt, a)

@@ -38,7 +38,7 @@ int TEST_NanoVM_release_code_mgr() {
   TEST(mem_mgr != NULL, "mem_mgr should be allocated");
   TEST(code_mgr != NULL, "code_mgr should be allocated");
   NanoVM_release_code_mgr(ctx);
-    return 0;
+  return 0;
 }
 
 int TEST_NanoVM_parse_code0() {
@@ -49,7 +49,7 @@ int TEST_NanoVM_parse_code0() {
   FILE *file = fopen(file_name, "r");
   fseek(file, 0, SEEK_END);
   long len = ftell(file);
-  char *data = zmalloc(len);
+  unsigned char *data = zmalloc(len);
   fseek(file, 0, SEEK_SET);
   fread(data, 1, len, file);
   nvm_bytecode_t* bytecode = (nvm_bytecode_t*) zmalloc(sizeof(nvm_bytecode_t));
@@ -74,7 +74,7 @@ int TEST_NanoVM_get_field() {
   FILE* file = fopen(file_name, "r");
   fseek(file, 0, SEEK_END);
   long len = ftell(file);
-  char* data = zmalloc(len);
+  unsigned char* data = zmalloc(len);
   fseek(file, 0, SEEK_SET);
   fread(data, 1, len, file);
   nvm_bytecode_t* bytecode = (nvm_bytecode_t*) zmalloc(sizeof(nvm_bytecode_t));
@@ -106,7 +106,7 @@ int TEST_NanoVM_get_ref_type() {
   FILE* file = fopen(file_name, "r");
   fseek(file, 0, SEEK_END);
   long len = ftell(file);
-  char* data = zmalloc(len);
+  unsigned char* data = zmalloc(len);
   fseek(file, 0, SEEK_SET);
   fread(data, 1, len, file);
   nvm_bytecode_t* bytecode = (nvm_bytecode_t*) zmalloc(sizeof(nvm_bytecode_t));
@@ -136,7 +136,7 @@ int TEST_NVM_CODE_release_type() {
   FILE* file = fopen(file_name, "r");
   fseek(file, 0, SEEK_END);
   long len = ftell(file);
-  char* data = zmalloc(len);
+  unsigned char* data = zmalloc(len);
   fseek(file, 0, SEEK_SET);
   fread(data, 1, len, file);
   nvm_bytecode_t* bytecode = (nvm_bytecode_t*) zmalloc(sizeof(nvm_bytecode_t));
@@ -162,7 +162,7 @@ int TEST_NVM_CODE_release_field() {
   FILE* file = fopen(file_name, "r");
   fseek(file, 0, SEEK_END);
   long len = ftell(file);
-  char* data = zmalloc(len);
+  unsigned char* data = zmalloc(len);
   fseek(file, 0, SEEK_SET);
   fread(data, 1, len, file);
   nvm_bytecode_t* bytecode = (nvm_bytecode_t*) zmalloc(sizeof(nvm_bytecode_t));

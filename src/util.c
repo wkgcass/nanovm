@@ -114,3 +114,26 @@ void NanoVM_del_all(nvm_node_t* head) {
   }
   zfree(node);
 }
+
+void* malloc_ref(nvm_node_t* head, size_t size) {
+  void* addr = zmalloc(size);
+
+  if (!addr || NanoVM_ins_node(head, addr) == -1) {
+    return NULL;
+  }
+  return addr;
+}
+
+void free_ref(nvm_node_t* head) {
+  nvm_node_t* node = head;
+  while (node->next) {
+    if (!node->addr) {
+      zfree(node->addr);
+    }
+    node = node->next;
+  }
+  if (!node->addr) {
+    zfree(node->addr);
+  }
+  NanoVM_del_all(head);
+}
