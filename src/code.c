@@ -80,8 +80,8 @@ int NanoVM_parse_code0(nvm_ctx_t* ctx, int bytecode_len, nvm_bytecode_t* bytecod
     NanoVM_error_log0("the parsed bytecode exceeds the maximum size of the type");
     return -1;
   }
-  Class* nvm_class = (Class*) NanoVM_alloc(ctx, bytecode_len * sizeof(Class));
-  if (!nvm_class) {
+  ClassFile* cf = (ClassFile*) NanoVM_alloc(ctx, bytecode_len * sizeof(ClassFile));
+  if (!cf) {
     NanoVM_debug_log0("class failed to apply for memory");
     return -1;
   }
@@ -96,13 +96,13 @@ int NanoVM_parse_code0(nvm_ctx_t* ctx, int bytecode_len, nvm_bytecode_t* bytecod
             .len = bytecodes[i].len,
             .idx = 0
     };
-    class_list[i] = read_class(&bytecode, &nvm_class[i]);
+    class_list[i] = readClass(&bytecode, &cf[i]);
     if (!class_list[i]) {
       for (int j = 0; j < i; j++) {
-        _release_class(class_list[j]);
+        free_ref(class_list[j]);
       }
       NanoVM_free(ctx, class_list);
-      NanoVM_free(ctx, nvm_class);
+      NanoVM_free(ctx, cf);
       NanoVM_error_log0("failed to parse bytecode");
       return -1;
     }
@@ -115,10 +115,10 @@ int NanoVM_parse_code0(nvm_ctx_t* ctx, int bytecode_len, nvm_bytecode_t* bytecod
         NVM_CODE_release_type(ctx, types[type_len + i]);
       }
       for (int j = 0; j < bytecode_len; j++) {
-        _release_class(class_list[j]);
+        free_ref(class_list[j]);
       }
       NanoVM_free(ctx, class_list);
-      NanoVM_free(ctx, nvm_class);
+      NanoVM_free(ctx, cf);
       NanoVM_debug_log0("ref_type failed to apply for memory");
       return -1;
     }
@@ -129,73 +129,75 @@ int NanoVM_parse_code0(nvm_ctx_t* ctx, int bytecode_len, nvm_bytecode_t* bytecod
     ref_type->field_len = 0;
     ref_type->meth_len = 0;
     ref_type->super.cat = NVM_TYPE_REF;
-    Item* cl_str = get_class_string(&nvm_class[i], nvm_class[i].this_class);
-    ref_type->name = (char*) NanoVM_alloc(ctx, sizeof(char) * (cl_str->value.string.length + 1));
+    CP_Info* class_index = &cf[i].c_pool[cf[i].this_class];
+    CP_Info* str = &cf[i].c_pool[class_index->c_detail.c_info.index];
+    ref_type->name = (char*) NanoVM_alloc(ctx, sizeof(char) * (str->c_detail.u8_info.len + 1));
     if (!ref_type->name) {
       for (int k = 0; k < i + 1; k++) {
         NVM_CODE_release_type(ctx, types[type_len + i]);
       }
       for (int j = 0; j < bytecode_len; j++) {
-        _release_class(class_list[i]);
+        free_ref(class_list[j]);
       }
       NanoVM_free(ctx, class_list);
-      NanoVM_free(ctx, nvm_class);
+      NanoVM_free(ctx, cf);
       return -1;
     }
-    strcpy(ref_type->name, cl_str->value.string.value);
-    ref_type->name[cl_str->value.string.length] = '\0';
+    strcpy(ref_type->name, (char*) str->c_detail.u8_info.bytes);
+    ref_type->name[str->c_detail.u8_info.len] = '\0';
   }
   // fill in fields and methods
   for (int i = 0; i < bytecode_len; i++) {
     nvm_ref_type_t* ref_type = (nvm_ref_type_t*) types[type_len + i];
-    Item* sup_cl_str = get_class_string(&nvm_class[i], nvm_class[i].super_class);
-    char* name = NanoVM_alloc(ctx, sizeof(char) * sup_cl_str->value.string.length + 1);
+    CP_Info* superc_index = &cf->c_pool[cf->super_class];
+    CP_Info* str = &cf->c_pool[superc_index->c_detail.c_info.index];
+    char* name = NanoVM_alloc(ctx, sizeof(char) * (str->c_detail.u8_info.len + 1));
     if (!name) {
       for (int j = 0; j < bytecode_len; j++) {
         NVM_CODE_release_type(ctx, types[type_len + j]);
-        _release_class(class_list[j]);
+        free_ref(class_list[j]);
       }
       NanoVM_free(ctx, class_list);
-      NanoVM_free(ctx, nvm_class);
+      NanoVM_free(ctx, cf);
       return -1;
     }
-    strcpy(name, sup_cl_str->value.string.value);
-    name[sup_cl_str->value.string.length] = '\0';
+    strcpy(name, (char*) str->c_detail.u8_info.bytes);
+    name[str->c_detail.u8_info.len] = '\0';
     ref_type->parent_type = (nvm_ref_type_t*) NanoVM_get_ref_type(ctx, name);
     NanoVM_free(ctx, name);
     if (!ref_type->parent_type) {
       for (int j = 0; j < bytecode_len; j++) {
         NVM_CODE_release_type(ctx, types[type_len + j]);
-        _release_class(class_list[j]);
+        free_ref(class_list[j]);
       }
       NanoVM_free(ctx, class_list);
-      NanoVM_free(ctx, nvm_class);
+      NanoVM_free(ctx, cf);
       NanoVM_debug_log0("can't find parent_type");
       return -1;
     }
     // begin fill in fields
-    int field_cnt = (int) nvm_class[i].fields_count;
+    int field_cnt = (int) cf[i].field_count;
     if (field_cnt != 0) {
-      if (_build_fields(ctx, &nvm_class[i], ref_type) == -1) {
+      if (_build_fields(ctx, &cf[i], ref_type) == -1) {
         for (int j = 0; j < bytecode_len; j++) {
           NVM_CODE_release_type(ctx, types[type_len + j]);
-          _release_class(class_list[j]);
+          free_ref(class_list[j]);
         }
         NanoVM_free(ctx, class_list);
-        NanoVM_free(ctx, nvm_class);
+        NanoVM_free(ctx, cf);
         return -1;
       }
     }
     // begin fill in methods
-    int meth_cnt = (int) nvm_class[i].methods_count;
+    int meth_cnt = cf->method_count;
     if (meth_cnt != 0) {
-      if (_build_meths(ctx, &nvm_class[i], ref_type) == -1) {
+      if (_build_meths(ctx, &cf[i], ref_type) == -1) {
         for (int j = 0; j < bytecode_len; j++) {
           NVM_CODE_release_type(ctx, types[type_len + j]);
-          _release_class(class_list[j]);
+          free_ref(class_list[j]);
         }
         NanoVM_free(ctx, class_list);
-        NanoVM_free(ctx, nvm_class);
+        NanoVM_free(ctx, cf);
         return -1;
       }
     }
@@ -203,10 +205,10 @@ int NanoVM_parse_code0(nvm_ctx_t* ctx, int bytecode_len, nvm_bytecode_t* bytecod
   }
   // finally free memory
   for (int l = 0; l < bytecode_len; l++) {
-    _release_class(class_list[l]);
+    free_ref(class_list[l]);
   }
   NanoVM_free(ctx, class_list);
-  NanoVM_free(ctx, nvm_class);
+  NanoVM_free(ctx, cf);
   return 0;
 }
 
@@ -216,6 +218,7 @@ nvm_meth_t* NanoVM_get_meth(nvm_ctx_t* ctx, nvm_ref_type_t* ref_type, char* name
   nvm_meth_t* meth;
   int len = ref_type->meth_len;
   for (int i = 0; i < len; i++) {
+    meth = meths[i];
     meth = meths[i];
     if (meth->name == name && meth->param_len == param_len &&
         meth->ret_type == ret_type && param_types == meth->param_types) {
@@ -275,7 +278,13 @@ nvm_arr_type_t* NanoVM_get_arr_type(nvm_ctx_t* ctx, nvm_type_t* comp_type) {
       }
     }
   }
-  return NULL;
+  //if not found arr type. should generate a arr type
+  nvm_arr_type_t* new_arr_type = NanoVM_alloc(ctx, sizeof(nvm_arr_type_t));
+  new_arr_type->super.cat = NVM_TYPE_ARR;
+  new_arr_type->comp_type = comp_type;
+  types[len] = (nvm_type_t*) new_arr_type;
+  ctx->vm->code_mgr->type_len++;
+  return new_arr_type;
 }
 
 // build_prm_type usually does not fail, so check at the end
@@ -289,38 +298,17 @@ int _build_prm_types(nvm_ctx_t* ctx) {
 
 int _build_ref_types(nvm_ctx_t* ctx) {
   nvm_type_t** types = ctx->vm->code_mgr->types;
-  nvm_ref_type_t* java_lang_Object;
-  types[ctx->vm->code_mgr->type_len] = NanoVM_alloc(ctx, sizeof(nvm_ref_type_t));
-  java_lang_Object = (nvm_ref_type_t*) types[ctx->vm->code_mgr->type_len];
+  nvm_ref_type_t* java_lang_Object = (nvm_ref_type_t*) NanoVM_alloc(ctx, sizeof(nvm_ref_type_t));
   if (!java_lang_Object) {
     NanoVM_debug_log0("build_ref_types apply memory failed");
     return -1;
   }
+  types[ctx->vm->code_mgr->type_len] = (nvm_type_t*) java_lang_Object;
   java_lang_Object->super.cat = NVM_TYPE_REF;
   java_lang_Object->field_len = 0;
-  java_lang_Object->meth_len = 3;
-  java_lang_Object->name = "java/lang/Object";
-  java_lang_Object->meths = NanoVM_alloc(ctx, sizeof(void*) * java_lang_Object->meth_len);
-  if (!java_lang_Object->meths) {
-    NanoVM_debug_log0("build_ref_types apply memory failed");
-    return -1;
-  }
-  // musc to apply memory separately
-  // method1
-  java_lang_Object->meths[0] = (nvm_meth_t*) NanoVM_alloc(ctx, sizeof(nvm_meth_t));
-  if (!java_lang_Object->meths[0]) {
-    return -1;
-  }
-  // method2
-  java_lang_Object->meths[1] = (nvm_meth_t*) NanoVM_alloc(ctx, sizeof(nvm_meth_t));
-  if (!java_lang_Object->meths[1]) {
-    return -1;
-  }
-  // method3
-  java_lang_Object->meths[2] = (nvm_meth_t*) NanoVM_alloc(ctx, sizeof(nvm_meth_t));
-  if (!java_lang_Object->meths[2]) {
-    return -1;
-  }
+  java_lang_Object->meth_len = 0;
+  java_lang_Object->name = NanoVM_alloc(ctx, sizeof("java/lang/Object"));
+  memcpy(java_lang_Object->name, "java/lang/Object", sizeof("java/lang/Object"));
   // TODO fill in method info
   java_lang_Object->parent_type = NULL;
   java_lang_Object->size = 0;
@@ -342,8 +330,9 @@ int _create_prm_type(nvm_ctx_t* ctx, char prm_type) {
   return 0;
 }
 
-int _build_fields(nvm_ctx_t* ctx, Class* nvm_class, nvm_ref_type_t* ref_type) {
-  int field_cnt = (int) nvm_class->fields_count;
+int _build_fields(nvm_ctx_t* ctx, ClassFile* cf, nvm_ref_type_t* ref_type) {
+  int field_cnt = cf->field_count;
+  nvm_field_t* field;
   ref_type->fields = (nvm_field_t**) NanoVM_alloc(ctx, sizeof(nvm_field_t*) * field_cnt);
   if (!ref_type->fields) {
     NanoVM_debug_log0("fields* failed to apply for memory");
@@ -355,38 +344,42 @@ int _build_fields(nvm_ctx_t* ctx, Class* nvm_class, nvm_ref_type_t* ref_type) {
       NanoVM_debug_log0("field failed to apply for memory");
       return -1;
     }
+    field = ref_type->fields[i];
     ref_type->field_len++;
-    ref_type->fields[i]->name = NULL;
-    ref_type->fields[i]->static_v = NULL;
-    Item* field_name = get_item(nvm_class, nvm_class->fields[i].name_idx);
-    Item* field_desc = get_item(nvm_class, nvm_class->fields[i].desc_idx);
-    ref_type->fields[i]->acc = (int) nvm_class->flags;
-    ref_type->fields[i]->dec_type = (nvm_type_t*) ref_type;
-    ref_type->fields[i]->name = (char*) NanoVM_alloc(ctx, sizeof(char) * (field_name->value.string.length + 1));
-    if (!ref_type->fields[i]->name) {
+    field->name = NULL;
+    field->static_v = NULL;
+    int nindex = cf->fields[i].name_index;
+    int dindex = cf->fields[i].d_index;
+    field->acc = cf->access_flag;
+    field->dec_type = (nvm_type_t*) ref_type;
+    field->name = (char*) NanoVM_alloc(ctx, sizeof(char) * (cf->c_pool[nindex].c_detail.u8_info.len + 1));
+    if (!field->name) {
       return -1;
     }
-    strcpy(ref_type->fields[i]->name, field_name->value.string.value);
-    ref_type->fields[i]->name[field_name->value.string.length] = '\0';
-    //field_name->value.string.value;
-    ref_type->fields[i]->off =
+    strcpy(field->name, (char*) cf->c_pool[nindex].c_detail.u8_info.bytes);
+    field->name[cf->c_pool[nindex].c_detail.u8_info.len] = '\0';
+    field->off =
             ref_type->parent_type->size + (i == 0 ? 0 : ref_type->fields[i - 1]->off + sizeof(void*));
-    char* desc = NanoVM_alloc(ctx, sizeof(char) * (field_desc->value.string.length));
-    strcpy(desc, field_desc->value.string.value);
-    desc[field_desc->value.string.length - 1] = '\0';
-    ref_type->fields[i]->type = _get_type(ctx, desc);;
+    char* desc = NanoVM_alloc(ctx, sizeof(char) * (cf->c_pool[dindex].c_detail.u8_info.len + 1));
+    strcpy(desc, (char*) cf->c_pool[dindex].c_detail.u8_info.bytes);
+    desc[cf->c_pool[dindex].c_detail.u8_info.len] = '\0';
+    field->type = _get_type(ctx, desc);;
     // if is a unknown type
-    if (!ref_type->fields[i]->type) {
+    if (!field->type) {
       NanoVM_debug_log0("it is a unknow type for field");
       return -1;
     }
-    // TODO  parse and fill in static_v
+    field->static_v = NULL;
   }
   return 0;
 }
 
-int _build_meths(nvm_ctx_t* ctx, Class* nvm_class, nvm_ref_type_t* ref_type) {
-  int meth_cnt = (int) nvm_class->methods_count;
+int _build_meths(nvm_ctx_t* ctx, ClassFile* cf, nvm_ref_type_t* ref_type) {
+  int meth_cnt = cf->method_count;
+  nvm_meth_t* meth;
+  Method_Detail* m_detail;
+  Attribute_Info* attrib;
+  UTF8_Info* utf8_info;
   ref_type->meths = (nvm_meth_t**) NanoVM_alloc(ctx, sizeof(nvm_meth_t*) * meth_cnt);
   if (!ref_type->meths) {
     NanoVM_debug_log0("methods* failed to apply for memory");
@@ -398,19 +391,38 @@ int _build_meths(nvm_ctx_t* ctx, Class* nvm_class, nvm_ref_type_t* ref_type) {
       NanoVM_debug_log0("method failed to apply for memory");
       return -1;
     }
+    meth = ref_type->meths[i];
+    m_detail = &cf->methods[i];
     ref_type->meth_len++;
-    ref_type->meths[i]->name = NULL;
-    Item* meth_name = get_item(nvm_class, nvm_class->methods[i].name_idx);
-    // Item* meth_desc = get_item(&nvm_class[i], nvm_class[i].methods[j].desc_idx);
-    ref_type->meths[i]->name = (char*) NanoVM_alloc(ctx, sizeof(char) * (meth_name->value.string.length + 1));
-    if (!ref_type->meths[i]->name) {
+    meth->name = NULL;
+    int nindex = m_detail->name_index;
+    meth->name = (char*) NanoVM_alloc(ctx, sizeof(char) * (cf->c_pool[nindex].c_detail.u8_info.len + 1));
+    if (!meth->name) {
       return -1;
     }
-    strcpy(ref_type->meths[i]->name, meth_name->value.string.value);
-    ref_type->meths[i]->name[meth_name->value.string.length] = '\0';
-    ref_type->meths[i]->acc = (int) nvm_class->methods[i].flags;
-    ref_type->meths[i]->dec_type = (nvm_type_t*) ref_type;
-    // TODO
+    strcpy(meth->name, (char*) cf->c_pool[nindex].c_detail.u8_info.bytes);
+    meth->name[cf->c_pool[nindex].c_detail.u8_info.len] = '\0';
+    meth->acc = m_detail->access_flags;
+    meth->dec_type = (nvm_type_t*) ref_type;
+    for (int j = 0; j < m_detail->a_count; j++) {
+      attrib = &m_detail->attributes[j];
+      utf8_info = &cf->c_pool[attrib->name_index].c_detail.u8_info;
+      int idx = 0;
+      if (strcmp("Code", (char*) utf8_info->bytes) == 0) {
+        meth->max_stack = convertShort(attrib->info);
+        idx += sizeof(u2);
+        meth->max_locals = convertShort(attrib->info + idx);
+        idx += sizeof(u2);
+        meth->insn_len = 0;//convertInt(attrib->info + idx);
+        idx += sizeof(u4);
+        //TODO opcode
+        idx += sizeof(u1) * meth->insn_len;
+        meth->ex_len = 0;//convertShort(attrib->info + idx);
+        //TODO exception
+      }
+
+    }
+
   }
   return 0;
 }
@@ -439,6 +451,12 @@ nvm_type_t* _get_type(nvm_ctx_t* ctx, char* fld_type) {
     case 'Z':
       return (nvm_type_t*) NanoVM_get_prm_type(ctx, NVM_PRM_TYPE_BOOLEAN);
     case 'L':
+      for (int i = 0;; i++) {
+        if (fld_type[i] == ';') {
+          fld_type[i] = '\0';
+          break;
+        }
+      }
       return (nvm_type_t*) NanoVM_get_ref_type(ctx, &fld_type[1]);
     case '[':
       return (nvm_type_t*) NanoVM_get_arr_type(ctx, _get_type(ctx, &fld_type[1]));
@@ -455,24 +473,20 @@ void NVM_CODE_release_type(nvm_ctx_t* ctx, nvm_type_t* type) {
   nvm_ref_type_t* ref_type;
   if (type->cat == NVM_TYPE_REF) {
     ref_type = (nvm_ref_type_t*) type;
+    NanoVM_free(ctx, ref_type->name);
     // free meths
-    for (int j = 0; j < ref_type->meth_len; j++) {
-      NVM_CODE_release_meth(ctx, ref_type->meths[j]);
+    for (int i = 0; i < ref_type->meth_len; i++) {
+      NVM_CODE_release_meth(ctx, ref_type->meths[i]);
     }
-    NanoVM_free(ctx, ref_type->meths);
     // free fields
-    for (int i = 0; i < ref_type->field_len; i++) {
-      NVM_CODE_release_field(ctx, ref_type->fields[i]);
+    for (int j = 0; j < ref_type->field_len; j++) {
+      NVM_CODE_release_field(ctx, ref_type->fields[j]);
     }
-    NanoVM_free(ctx, ref_type->fields);
-    if (ref_type->name) {
-      NanoVM_free(ctx, ref_type->name);
-    }
-    NanoVM_free(ctx, ref_type);
+
   } else {
+    //if is arr type or primit tpye
     NanoVM_free(ctx, type);
   }
-  ctx->vm->code_mgr->type_len--;
 
 }
 
@@ -508,8 +522,5 @@ void NVM_CODE_release_insn(nvm_ctx_t* ctx, nvm_insn_t* insn) {
 }
 
 void NVM_CODE_release_ex(nvm_ctx_t* ctx, nvm_ex_t* ex) {
-  NVM_CODE_release_insn(ctx, ex->start);
-  NVM_CODE_release_insn(ctx, ex->end);
-  NVM_CODE_release_insn(ctx, ex->handler);
   NanoVM_free(ctx, ex);
 }

@@ -51,7 +51,7 @@ typedef struct _nvm_code_mgr_ {
 
 typedef struct _nvm_bytecode_ {
     int len;
-    char* bytecode;
+    u1* bytecode;
 } nvm_bytecode_t;
 
 typedef struct _nvm_type_ {
@@ -157,9 +157,9 @@ int _build_ref_types(nvm_ctx_t* ctx);
 
 int _create_prm_type(nvm_ctx_t* ctx, char prm_type);
 
-int _build_fields(nvm_ctx_t* ctx, Class* class, nvm_ref_type_t* ref_type);
+int _build_fields(nvm_ctx_t* ctx, ClassFile* cf, nvm_ref_type_t* ref_type);
 
-int _build_meths(nvm_ctx_t* ctx, Class* class, nvm_ref_type_t* ref_type);
+int _build_meths(nvm_ctx_t* ctx, ClassFile* cf, nvm_ref_type_t* ref_type);
 
 void _release_class(nvm_node_t* head);
 
