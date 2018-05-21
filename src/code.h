@@ -165,6 +165,10 @@ void _release_class(nvm_node_t* head);
 
 nvm_type_t* _get_type(nvm_ctx_t* ctx, char* fld_type);
 
+int _judge_type(char* desc);
+
+int _build_meth_detail(nvm_ctx_t* ctx, nvm_meth_t* meth, Method_Detail* m_detail, ClassFile* cf);
+
 // -----BEGIN instructions category-----
 // same as java asm lib
 // but we don't support invokedynamic

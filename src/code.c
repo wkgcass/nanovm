@@ -3,7 +3,7 @@
 #include "nanovm.internal.h"
 #include "memory.h"
 
-//TODO 1.Fill in opcode  2. fill in field and meth attr
+//TODO 1.Fill in opcode  2. fill in meth attr
 nvm_opcode_meta_t* opcode_meta = NULL;
 
 int NanoVM_GLOBAL_init_code() {
@@ -219,10 +219,17 @@ nvm_meth_t* NanoVM_get_meth(nvm_ctx_t* ctx, nvm_ref_type_t* ref_type, char* name
   int len = ref_type->meth_len;
   for (int i = 0; i < len; i++) {
     meth = meths[i];
-    meth = meths[i];
-    if (meth->name == name && meth->param_len == param_len &&
-        meth->ret_type == ret_type && param_types == meth->param_types) {
-      return meths[i];
+    if (strcmp(meth->name, name) == 0 && meth->param_len == param_len &&
+        meth->ret_type == ret_type) {
+      int param_flag = 1;
+      for (int j = 0; j < meth->param_len; j++) {
+        if (meth->param_types[j] != param_types[j]) {
+          param_flag = 0;
+        }
+      }
+      if (param_flag == 1) {
+        return meth;
+      }
     }
 
   }
@@ -323,13 +330,13 @@ int _build_ref_types(nvm_ctx_t* ctx) {
 }
 
 int _create_prm_type(nvm_ctx_t* ctx, char prm_type) {
-  nvm_prm_type_t* _prm_type = (nvm_prm_type_t*) NanoVM_alloc(ctx, sizeof(_prm_type));
-  ctx->vm->code_mgr->types[ctx->vm->code_mgr->type_len] = (nvm_type_t*) _prm_type;
-  ctx->vm->code_mgr->type_len++;
+  nvm_prm_type_t* _prm_type = (nvm_prm_type_t*) NanoVM_alloc(ctx, sizeof(nvm_prm_type_t));
   if (!_prm_type) {
     NanoVM_debug_log0("failed to apply for memory when creating a primitive type");
     return -1;
   }
+  ctx->vm->code_mgr->types[ctx->vm->code_mgr->type_len] = (nvm_type_t*) _prm_type;
+  ctx->vm->code_mgr->type_len++;
   _prm_type->prm_type = prm_type;
   _prm_type->super.cat = NVM_TYPE_PRM;
   _prm_type->size = NanoVM_get_prm_type_size(prm_type);
@@ -402,12 +409,16 @@ int _build_meths(nvm_ctx_t* ctx, ClassFile* cf, nvm_ref_type_t* ref_type) {
     ref_type->meth_len++;
     meth->name = NULL;
     int nindex = m_detail->name_index;
+
     meth->name = (char*) NanoVM_alloc(ctx, sizeof(char) * (cf->c_pool[nindex].c_detail.u8_info.len + 1));
     if (!meth->name) {
       return -1;
     }
     strcpy(meth->name, (char*) cf->c_pool[nindex].c_detail.u8_info.bytes);
     meth->name[cf->c_pool[nindex].c_detail.u8_info.len] = '\0';
+    if (_build_meth_detail(ctx, meth, m_detail, cf) == -1) {
+      return -1;
+    }
     meth->acc = m_detail->access_flags;
     meth->dec_type = (nvm_type_t*) ref_type;
     for (int j = 0; j < m_detail->a_count; j++) {
@@ -430,6 +441,123 @@ int _build_meths(nvm_ctx_t* ctx, ClassFile* cf, nvm_ref_type_t* ref_type) {
     }
 
   }
+  return 0;
+}
+
+int _build_meth_detail(nvm_ctx_t* ctx, nvm_meth_t* meth, Method_Detail* m_detail, ClassFile* cf) {
+  nvm_node_t* head = NanoVM_init_linkedlist();
+  if (!head) {
+    return -1;
+  }
+  int dindex = m_detail->d_index;
+  char* desc = (char*) cf->c_pool[dindex].c_detail.u8_info.bytes;
+  int desc_idx = 0;
+  int desc_cnt = 0;
+  int str_len = 0;
+  int str_start = 0;
+  int ref_type_flag = 0;
+  int arr_type_flag = 0;
+  int param_len = 0;
+  nvm_type_t* ret_type;
+  while (desc[desc_idx] != '\0') {
+    char* type_name = NULL;
+    switch (desc[desc_idx]) {
+      case '(':
+        desc_cnt++;
+        break;
+      case ')':
+        desc_cnt--;
+        break;
+      case ';':
+        str_len++;
+        type_name = NanoVM_alloc(ctx, sizeof(char) * (str_len + 1));
+        strncpy(type_name, &desc[str_start], str_len + 1);
+
+        if (desc_cnt == 0) {
+          ret_type = _get_type(ctx, type_name);
+        } else {
+          if (NanoVM_ins_node(head, _get_type(ctx, type_name)) == -1) {
+            NanoVM_del_all(head);
+            return -1;
+          }
+          param_len++;
+        }
+        str_start = 0;
+        str_len = 0;
+        ref_type_flag = 0;
+        arr_type_flag = 0;
+        break;
+      default:
+        if (ref_type_flag == 0 && arr_type_flag == 0) {
+          int result = _judge_type(&desc[desc_idx]);
+          if (result == -1) {
+            NanoVM_del_all(head);
+            return -1;
+          } else if (result == NVM_TYPE_REF) {
+            str_start = desc_idx;
+            ref_type_flag = 1;
+          } else if (result == NVM_TYPE_ARR) {
+            str_start = desc_idx;
+            arr_type_flag = 1;
+          } else {
+            if (desc_cnt == 0) {
+              ret_type = _get_type(ctx, &desc[desc_idx]);
+            } else {
+              if (NanoVM_ins_node(head, _get_type(ctx, &desc[desc_idx])) == -1) {
+                NanoVM_del_all(head);
+                return -1;
+              }
+              param_len++;
+            }
+          }
+        } else if (ref_type_flag == 1 && arr_type_flag == 0) {
+          str_len++;
+        } else if (ref_type_flag == 0 && arr_type_flag == 1) {
+          int result = _judge_type(&desc[desc_idx]);
+          arr_type_flag = 0;
+          str_len++;
+          if (result == -1) {
+            return -1;
+          } else if (result == NVM_TYPE_REF) {
+            ref_type_flag = 1;
+          } else if (result == NVM_TYPE_PRM) {
+            char* name = NanoVM_alloc(ctx, sizeof(char) * str_len);
+            memcpy(&name, &desc[str_start], str_len);
+            if (desc_cnt == 0) {
+              ret_type = _get_type(ctx, name);
+            } else {
+              if (NanoVM_ins_node(head, _get_type(ctx, name)) == -1) {
+                NanoVM_del_all(head);
+                return -1;
+              }
+              param_len++;
+            }
+            str_len = 0;
+          } else {
+            arr_type_flag = 1;
+            str_len++;
+          }
+        }
+        break;
+    }
+    desc_idx++;
+  }
+  meth->param_types = NanoVM_alloc(ctx, sizeof(void*) * param_len);
+  if (!meth->param_types) {
+    NanoVM_del_all(head);
+    return -1;
+  }
+  nvm_node_t* node = NULL;
+  if (param_len != 0) {
+    node = head->next;
+  }
+  for (int i = 0; i < param_len; i++) {
+    meth->param_types[i] = (nvm_type_t*) node->addr;
+    node = node->next;
+  }
+  meth->ret_type = ret_type;
+  meth->param_len = param_len;
+  NanoVM_del_all(head);
   return 0;
 }
 
@@ -469,6 +597,35 @@ nvm_type_t* _get_type(nvm_ctx_t* ctx, char* fld_type) {
     default:
       NanoVM_error_log0("trying to get unknown type %s\", fld_type[0]");
       return NULL;
+  }
+}
+
+int _judge_type(char* desc) {
+  switch (desc[0]) {
+    case 'B':
+      return NVM_TYPE_PRM;
+    case 'C':
+      return NVM_TYPE_PRM;
+    case 'D':
+      return NVM_TYPE_PRM;
+    case 'F':
+      return NVM_TYPE_PRM;
+    case 'I':
+      return NVM_TYPE_PRM;
+    case 'J':
+      return NVM_TYPE_PRM;
+    case 'S':
+      return NVM_TYPE_PRM;
+    case 'V':
+      return NVM_TYPE_PRM;
+    case 'Z':
+      return NVM_TYPE_PRM;
+    case 'L':
+      return NVM_TYPE_REF;
+    case '[':
+      return NVM_TYPE_ARR;
+    default:
+      return -1;
   }
 }
 
