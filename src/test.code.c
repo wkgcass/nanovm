@@ -45,7 +45,7 @@ int TEST_NanoVM_parse_code0() {
   INIT_CTX
   INIT_MEM_MGR(1024 * 1024, 1024 * 1024);
   INIT_CODE_MGR(16)
-  char* file_name = "/Users/apple/CLionProjects/cfr/Test.class";
+  char* file_name = "../test/Test.class";
   FILE* file = fopen(file_name, "r");
   fseek(file, 0, SEEK_END);
   long len = ftell(file);
@@ -65,7 +65,7 @@ int TEST_NanoVM_get_meth() {
   INIT_CTX
   INIT_MEM_MGR(1024 * 1024, 1024 * 1024);
   INIT_CODE_MGR(16)
-  char* file_name = "/Users/apple/CLionProjects/cfr/Test.class";
+  char* file_name = "../test/Test.class";
   FILE* file = fopen(file_name, "r");
   fseek(file, 0, SEEK_END);
   long len = ftell(file);
@@ -93,7 +93,7 @@ int TEST_NanoVM_get_field() {
   INIT_CTX
   INIT_MEM_MGR(1024 * 1024, 1024 * 1024);
   INIT_CODE_MGR(16)
-  char* file_name = "/Users/apple/CLionProjects/cfr/Test.class";
+  char* file_name = "../test/Test.class";
   FILE* file = fopen(file_name, "r");
   fseek(file, 0, SEEK_END);
   long len = ftell(file);
@@ -106,7 +106,9 @@ int TEST_NanoVM_get_field() {
   int bytecode_len = 1;
   int result = NanoVM_parse_code0(ctx, bytecode_len, bytecode);
   TEST(result == 0, "bytecode parse error");
-  nvm_field_t* field = NanoVM_get_field(ctx, (nvm_ref_type_t*) code_mgr->types[10], "name");
+  nvm_ref_type_t* ref_type = NanoVM_get_ref_type(ctx, "Test");
+  TEST(ref_type != NULL, "ref_type should be found");
+  nvm_field_t* field = NanoVM_get_field(ctx, ref_type, "b");
   TEST(field != NULL, "field should be found");
   return 0;
 }
@@ -125,7 +127,7 @@ int TEST_NanoVM_get_ref_type() {
   INIT_CTX
   INIT_MEM_MGR(1024 * 1024, 1024 * 1024);
   INIT_CODE_MGR(16)
-  char* file_name = "/Users/apple/CLionProjects/cfr/Test.class";
+  char* file_name = "../test/Test.class";
   FILE* file = fopen(file_name, "r");
   fseek(file, 0, SEEK_END);
   long len = ftell(file);
@@ -161,7 +163,7 @@ int TEST_NVM_CODE_release_type() {
   INIT_CTX
   INIT_MEM_MGR(1024 * 1024, 1024 * 1024);
   INIT_CODE_MGR(16)
-  char* file_name = "/Users/apple/CLionProjects/cfr/Test.class";
+  char* file_name = "../test/Test.class";
   FILE* file = fopen(file_name, "r");
   fseek(file, 0, SEEK_END);
   long len = ftell(file);
@@ -187,7 +189,7 @@ int TEST_NVM_CODE_release_field() {
   INIT_CTX
   INIT_MEM_MGR(1024 * 1024, 1024 * 1024);
   INIT_CODE_MGR(16)
-  char* file_name = "/Users/apple/CLionProjects/cfr/Test.class";
+  char* file_name = "../test/Test.class";
   FILE* file = fopen(file_name, "r");
   fseek(file, 0, SEEK_END);
   long len = ftell(file);
@@ -200,10 +202,14 @@ int TEST_NVM_CODE_release_field() {
   int bytecode_len = 1;
   int result = NanoVM_parse_code0(ctx, bytecode_len, bytecode);
   TEST(result == 0, "bytecode parse error");
-  nvm_field_t* field = NanoVM_get_field(ctx, (nvm_ref_type_t*) code_mgr->types[10], "name");
+  char* name = "Test";
+  nvm_ref_type_t* ref_type = NanoVM_get_ref_type(ctx, name);
+  TEST(ref_type != NULL, "ref_type should be found");
+  char* field_name = "a";
+  nvm_field_t* field = NanoVM_get_field(ctx, ref_type, field_name);
   TEST(field != NULL, "field should be found");
   NVM_CODE_release_field(ctx, field);
-  field = NanoVM_get_field(ctx, (nvm_ref_type_t*) code_mgr->types[10], "name");
+  field = NanoVM_get_field(ctx, ref_type, field_name);
   TEST(field == NULL, "field should be null");
   return 0;
 }
@@ -212,7 +218,7 @@ int TEST_NVM_CODE_release_meth() {
   INIT_CTX
   INIT_MEM_MGR(1024 * 1024, 1024 * 1024);
   INIT_CODE_MGR(16)
-  char* file_name = "/Users/apple/CLionProjects/cfr/Test.class";
+  char* file_name = "../test/Test.class";
   FILE* file = fopen(file_name, "r");
   fseek(file, 0, SEEK_END);
   long len = ftell(file);
@@ -231,10 +237,11 @@ int TEST_NVM_CODE_release_meth() {
   nvm_type_t** param_types = NanoVM_alloc(ctx, sizeof(void*) * 2);
   param_types[0] = (nvm_type_t*) NanoVM_get_prm_type(ctx, NVM_PRM_TYPE_FLOAT);
   param_types[1] = (nvm_type_t*) NanoVM_get_prm_type(ctx, NVM_PRM_TYPE_INT);
-  nvm_meth_t* meth = NanoVM_get_meth(ctx, ref_type, "getMethod", ret_type, 2, param_types);
+  char* meth_name = "getMethod";
+  nvm_meth_t* meth = NanoVM_get_meth(ctx, ref_type, meth_name, ret_type, 2, param_types);
   TEST(meth != NULL, "meth should be found");
   NVM_CODE_release_meth(ctx, meth);
-  meth = NanoVM_get_meth(ctx, ref_type, "getMethod", ret_type, 2, param_types);
+  meth = NanoVM_get_meth(ctx, ref_type, meth_name, ret_type, 2, param_types);
   TEST(meth == NULL, "meth should be NULL");
   return 0;
 }

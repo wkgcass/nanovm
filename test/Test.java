@@ -1,6 +1,6 @@
 public class Test {
     private int a[];
-    private int b = 2;
+    private static int b = 2;
     private Object c[];
 
     public static void main(String args[]) {
