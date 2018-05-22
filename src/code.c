@@ -233,7 +233,8 @@ nvm_meth_t* NanoVM_get_meth(nvm_ctx_t* ctx, nvm_ref_type_t* ref_type, char* name
     }
 
   }
-  return NULL;
+  return !ref_type->parent_type ? NULL : NanoVM_get_meth(ctx, ref_type->parent_type, name, ret_type, param_len,
+                                                         param_types);
 }
 
 nvm_field_t* NanoVM_get_field(nvm_ctx_t* ctx, nvm_ref_type_t* ref_type, char* name) {
@@ -244,7 +245,7 @@ nvm_field_t* NanoVM_get_field(nvm_ctx_t* ctx, nvm_ref_type_t* ref_type, char* na
       return fields[i];
     }
   }
-  return NULL;
+  return !ref_type->parent_type ? NULL : NanoVM_get_field(ctx, ref_type->parent_type, name);
 }
 
 nvm_prm_type_t* NanoVM_get_prm_type(nvm_ctx_t* ctx, char prm) {
@@ -430,12 +431,30 @@ int _build_meths(nvm_ctx_t* ctx, ClassFile* cf, nvm_ref_type_t* ref_type) {
         idx += sizeof(u2);
         meth->max_locals = convertShort(attrib->info + idx);
         idx += sizeof(u2);
-        meth->insn_len = 0;//convertInt(attrib->info + idx);
+        meth->insn_len = 0; //convertInt(attrib->info + idx);
         idx += sizeof(u4);
         //TODO opcode
         idx += sizeof(u1) * meth->insn_len;
-        meth->ex_len = 0;//convertShort(attrib->info + idx);
+        meth->ex_len = 0; //convertShort(attrib->info + idx);
+        idx += sizeof(u2);
         //TODO exception
+        if (meth->ex_len > 0) {
+          meth->exs = (nvm_ex_t**) NanoVM_alloc(ctx, sizeof(nvm_ex_t*));
+          for (int k = 0; k < meth->ex_len; k++) {
+//            meth->exs[k] = (nvm_ex_t*) NanoVM_alloc(ctx, sizeof(nvm_ex_t));
+//            int start_pc = convertShort(attrib->info + idx);
+//            NanoVM_debug_log1("%d",start_pc);
+//            idx += sizeof(u2);
+//            int end_pc = convertShort(attrib->info + idx);
+//            NanoVM_debug_log1("%d",end_pc);
+//            idx += sizeof(u2);
+//            int handler_pc = convertShort(attrib->info + idx);
+//            NanoVM_debug_log1("%d",handler_pc);
+//            idx += sizeof(u2);
+//            int catch_type_idx = convertShort(attrib->info + idx);
+//            NanoVM_debug_log1("%d",catch_type_idx);
+          }
+        }
       }
 
     }
