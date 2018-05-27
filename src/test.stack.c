@@ -6,7 +6,6 @@
 #define INIT_STACK_MGR(frame_cap)\
   NanoVM_create_mem_mgr(ctx, 65536, 65536);\
   nvm_stack_mgr_t* stack_mgr = NanoVM_create_stack_mgr(ctx, frame_cap);\
-  ctx->vm->stack_mgr = stack_mgr;\
   TEST(stack_mgr != NULL, "stack_mgr should be created");
 
 void _build_frame(nvm_ctx_t* ctx, nvm_stack_t* stack, nvm_frame_t** frame_recv) {
@@ -90,6 +89,7 @@ int TEST_NanoVM_create_stack() {
   TEST(stack->frame_cap == 2, "frame cap should be the same as it in stack_mgr");
   TEST(stack->frame_len == 0, "frame len should be 0 when initiated");
   TEST(stack->frames != NULL, "frames should be allocated");
+  TEST(stack->thread == NULL, "stack thread should be null when created");
   TEST(_mem_same(zmalloc_size(stack->frames), ZM_PREFIX_SIZE + sizeof(void*) * 2),
        "should allocate frames");
   TEST(_mem_same(used_b - used_a, ZM_PREFIX_SIZE + sizeof(nvm_stack_t) + ZM_PREFIX_SIZE + sizeof(void*) * 2),

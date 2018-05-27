@@ -27,6 +27,7 @@ nvm_stack_mgr_t* NanoVM_create_stack_mgr(nvm_ctx_t* ctx, int frame_cap) {
     return NULL;
   }
   mgr->frame_cap = frame_cap;
+  ctx->vm->stack_mgr = mgr;
   return mgr;
 }
 
@@ -49,6 +50,7 @@ nvm_stack_t* NanoVM_create_stack(nvm_ctx_t* ctx) {
     NanoVM_free(ctx, stack);
     return NULL;
   }
+  stack->thread = NULL; // it should be null when created
   return stack;
 }
 

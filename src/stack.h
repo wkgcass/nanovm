@@ -15,10 +15,13 @@ typedef struct _nvm_stack_mgr_ {
   int frame_cap;
 } nvm_stack_mgr_t;
 
+typedef struct _nvm_thread_ nvm_thread_t;
+
 typedef struct _nvm_stack_ {
             int frame_cap;
             int frame_len;
   nvm_frame_t** frames;
+  nvm_thread_t* thread; // this field will be set in thread module
 } nvm_stack_t;
 
 typedef struct _nvm_result_ {
